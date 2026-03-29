@@ -461,19 +461,19 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
             position: "absolute", bottom: 0, left: 0,
             width: 0, height: 0, borderStyle: "solid",
             borderWidth: "0 72px 72px 0",
-            borderColor: `transparent ${isFirst ? "rgba(255,255,255,0.04)" : "rgba(74,26,138,0.8)"} transparent transparent`,
+            borderColor: `transparent ${isFirst ? "rgba(120,60,220,0.25)" : "rgba(120,60,220,0.9)"} transparent transparent`,
             transition: "all 0.3s", filter: flipping === "left" ? "brightness(1.5)" : "brightness(1)",
             transform: flipping === "left" ? "scale(1.15)" : "scale(1)",
           }} />
           {/* Arrow icon */}
           <div style={{ position: "absolute", bottom: 10, left: 6, transform: "rotate(0deg)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#333" : "#e8e8e8"} strokeWidth="2.5" strokeLinecap="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#666" : "#ffffff"} strokeWidth="2.5" strokeLinecap="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </div>
           {/* Label */}
           <span style={{ position: "absolute", bottom: 2, left: 22, fontFamily: "'Space Mono',monospace",
-            fontSize: 6, color: isFirst ? "#333" : "#c0c0d0", textTransform: "uppercase", letterSpacing: 1,
+            fontSize: 6, color: isFirst ? "#777" : "#e8e8f0", textTransform: "uppercase", letterSpacing: 1,
             transform: "rotate(45deg)", transformOrigin: "left bottom" }}>PREV</span>
         </div>
       </button>
@@ -481,7 +481,7 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
       {/* Page counter — bottom centre */}
       <div style={{ position: "fixed", bottom: 12, left: "50%", transform: "translateX(-50%)", zIndex: 80,
         display: "flex", alignItems: "center", gap: 8,
-        background: "rgba(10,0,48,0.7)", backdropFilter: "blur(8px)", padding: "6px 14px", borderRadius: 20,
+        background: "rgba(30,20,90,0.75)", backdropFilter: "blur(8px)", padding: "6px 14px", borderRadius: 20,
         border: "1px solid rgba(255,255,255,0.1)" }}>
         {Array.from({ length: totalPages }, (_, i) => (
           <div key={i} onClick={() => { if (i !== currentPage) onNavigate(i, i > currentPage ? "right" : "left"); }}
@@ -503,19 +503,19 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
             position: "absolute", bottom: 0, right: 0,
             width: 0, height: 0, borderStyle: "solid",
             borderWidth: "72px 0 0 72px",
-            borderColor: `transparent transparent transparent ${isLast ? "rgba(255,255,255,0.04)" : "rgba(74,26,138,0.8)"}`,
+            borderColor: `transparent transparent transparent ${isLast ? "rgba(120,60,220,0.25)" : "rgba(120,60,220,0.9)"}`,
             transition: "all 0.3s", filter: flipping === "right" ? "brightness(1.5)" : "brightness(1)",
             transform: flipping === "right" ? "scale(1.15)" : "scale(1)",
           }} />
           {/* Arrow icon */}
           <div style={{ position: "absolute", bottom: 10, right: 6 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#333" : "#e8e8e8"} strokeWidth="2.5" strokeLinecap="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#666" : "#ffffff"} strokeWidth="2.5" strokeLinecap="round">
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </div>
           {/* Label */}
           <span style={{ position: "absolute", bottom: 2, right: 22, fontFamily: "'Space Mono',monospace",
-            fontSize: 6, color: isLast ? "#333" : "#c0c0d0", textTransform: "uppercase", letterSpacing: 1,
+            fontSize: 6, color: isLast ? "#777" : "#e8e8f0", textTransform: "uppercase", letterSpacing: 1,
             transform: "rotate(-45deg)", transformOrigin: "right bottom" }}>NEXT</span>
         </div>
       </button>
@@ -708,7 +708,7 @@ export default function MaxAnimeSoulSite() {
         }
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{background:#0a0030;color:var(--text-primary);font-family:'Outfit',sans-serif;overflow:hidden;height:100vh}
+        body{background:#1a1060;color:var(--text-primary);font-family:'Outfit',sans-serif;overflow:hidden;height:100vh}
 
         @keyframes comicPageInRight{
           0%{transform:translateX(50%) rotateY(-12deg);opacity:0}
@@ -1002,8 +1002,8 @@ export default function MaxAnimeSoulSite() {
         <section id="section-hero" ref={heroRef} style={{
           minHeight: "100vh", position: "relative", overflow: "hidden",
           background: introPhase < 2
-            ? "var(--sky-night)"
-            : "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
+            ? "#1a1060"
+            : "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)",
           backgroundSize: "300% 300%", animation: introPhase >= 2 ? "gradientShift 12s ease-in-out infinite" : "none",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           transition: "background 1.5s ease",
@@ -1108,7 +1108,7 @@ export default function MaxAnimeSoulSite() {
             ═══════════════════════════════════════════════════════ */}
         <ComicPage pageIndex={1} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-quotes" style={{
-          minHeight: "100vh", background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
+          minHeight: "100vh", background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
           {quotes.map((q, i) => <QuoteCard key={i} q={q} i={i} />)}
         </section>
         </ComicPage>
@@ -1119,7 +1119,7 @@ export default function MaxAnimeSoulSite() {
         <ComicPage pageIndex={2} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-legends" style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
+          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
           padding: "80px 20px",
         }}>
@@ -1216,7 +1216,7 @@ export default function MaxAnimeSoulSite() {
         <ComicPage pageIndex={3} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-1" style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
+          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 25s ease-in-out infinite",
           padding: "80px 20px",
         }}>
@@ -1245,7 +1245,7 @@ export default function MaxAnimeSoulSite() {
         <ComicPage pageIndex={4} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-2" style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
+          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
           padding: "80px 20px", position: "relative",
         }}>
@@ -1296,7 +1296,7 @@ export default function MaxAnimeSoulSite() {
             SECOND QUOTES — More Inspiration
             ═══════════════════════════════════════════════════════ */}
         <section id="section-3" style={{
-          minHeight: "100vh", background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 18s ease-in-out infinite", padding: "70px 20px" }}>
+          minHeight: "100vh", background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)", backgroundSize: "300% 300%", animation: "gradientShift 18s ease-in-out infinite", padding: "70px 20px" }}>
           <RevealDiv style={{ textAlign: "center", maxWidth: 600, margin: "0 auto" }}>
             <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(16px,3.5vw,26px)", color: "#ffd93d",
               textTransform: "uppercase", letterSpacing: 3, lineHeight: 1.8,
@@ -1315,7 +1315,7 @@ export default function MaxAnimeSoulSite() {
             ═══════════════════════════════════════════════════════ */}
         <section id="section-4" style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
+          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
         }}>
           {/* Subtle ? hint */}
           <RevealDiv style={{ maxWidth: 420, margin: "0 auto", textAlign: "center" }}>
@@ -1382,7 +1382,7 @@ export default function MaxAnimeSoulSite() {
             ═══════════════════════════════════════════════════════ */}
         <section id="section-ultra" style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
+          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite",
           padding: ultraMode ? "80px 20px" : 0, textAlign: "center",
           maxHeight: ultraMode ? "2000px" : 0, overflow: "hidden",
@@ -1431,7 +1431,7 @@ export default function MaxAnimeSoulSite() {
         <ComicPage pageIndex={6} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-footer" style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
+          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 15s ease-in-out infinite", padding: "80px 20px", textAlign: "center", position: "relative",
         }}>
           {/* Stars */}
