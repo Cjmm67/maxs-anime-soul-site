@@ -215,10 +215,18 @@ export default function MaxAnimeSoulSite() {
   const [typeText, setTypeText] = useState("");
   const [ultraMode, setUltraMode] = useState(false);
   const [ultraAnimating, setUltraAnimating] = useState(false);
+  const [domainMode, setDomainMode] = useState(false);
+  const [domainAnimating, setDomainAnimating] = useState(false);
+  const [waterMode, setWaterMode] = useState(false);
+  const [waterAnimating, setWaterAnimating] = useState(false);
+  const [konamiMode, setKonamiMode] = useState(false);
+  const [konamiAnimating, setKonamiAnimating] = useState(false);
   const [secretCode, setSecretCode] = useState("");
   const [activeManga, setActiveManga] = useState(null);
   const [pageTurn, setPageTurn] = useState(false);
+  const [codeMessage, setCodeMessage] = useState("");
   const heroRef = useRef(null);
+  const konamiSeq = useRef([]);
 
   const introLine = "The power of three legends begins here...";
 
@@ -238,15 +246,55 @@ export default function MaxAnimeSoulSite() {
     return () => clearTimeout(t);
   }, [introPhase, typeText]);
 
-  // Ultra Super activation
+  // ─── KONAMI CODE LISTENER ─────────────────────────────────
+  useEffect(() => {
+    const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+    const handleKey = (e) => {
+      konamiSeq.current.push(e.key);
+      konamiSeq.current = konamiSeq.current.slice(-10);
+      if (konamiSeq.current.length === 10 && konamiSeq.current.every((k, i) => k === KONAMI[i])) {
+        if (!konamiMode) activateKonami();
+        konamiSeq.current = [];
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [konamiMode]);
+
+  // ─── ACTIVATION FUNCTIONS ─────────────────────────────────
   const activateUltra = useCallback(() => {
     if (ultraMode) return;
     setUltraAnimating(true);
     setTimeout(() => { setUltraAnimating(false); setUltraMode(true); }, 3200);
   }, [ultraMode]);
 
+  const activateDomain = useCallback(() => {
+    if (domainMode) return;
+    setDomainAnimating(true);
+    setCodeMessage("");
+    setTimeout(() => { setDomainAnimating(false); setDomainMode(true); }, 3500);
+  }, [domainMode]);
+
+  const activateWater = useCallback(() => {
+    if (waterMode) return;
+    setWaterAnimating(true);
+    setCodeMessage("");
+    setTimeout(() => { setWaterAnimating(false); setWaterMode(true); }, 3000);
+  }, [waterMode]);
+
+  const activateKonami = useCallback(() => {
+    if (konamiMode) return;
+    setKonamiAnimating(true);
+    setTimeout(() => { setKonamiAnimating(false); setKonamiMode(true); }, 3500);
+  }, [konamiMode]);
+
   const handleSecretSubmit = () => {
-    if (secretCode.trim().toLowerCase() === "ultra super") activateUltra();
+    const code = secretCode.trim().toLowerCase();
+    if (code === "ultra super") { activateUltra(); setCodeMessage(""); }
+    else if (code === "domain expansion") { activateDomain(); }
+    else if (code === "water breathing") { activateWater(); }
+    else { setCodeMessage("UNKNOWN CODE — ACCESS DENIED"); setTimeout(() => setCodeMessage(""), 2000); }
+    setSecretCode("");
   };
 
   // Character data
@@ -315,6 +363,24 @@ export default function MaxAnimeSoulSite() {
         @keyframes speedLinesRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
+        @keyframes domainExpand{0%{transform:translate(-50%,-50%) scale(0);opacity:0;border-radius:50%}40%{opacity:1;border-radius:50%}100%{transform:translate(-50%,-50%) scale(3);opacity:0;border-radius:0}}
+        @keyframes domainFlash{0%{opacity:0}8%{opacity:1}15%{opacity:0}20%{opacity:.8}100%{opacity:0}}
+        @keyframes domainVoid{0%{background-position:0% 0%}100%{background-position:100% 100%}}
+        @keyframes domainText{0%{opacity:0;letter-spacing:30px;filter:blur(10px)}40%{opacity:1;letter-spacing:8px;filter:blur(0)}80%{opacity:1}100%{opacity:0;letter-spacing:2px}}
+        @keyframes domainBorder{0%,100%{box-shadow:inset 0 0 30px rgba(0,102,255,.15)}50%{box-shadow:inset 0 0 60px rgba(0,102,255,.3), inset 0 0 120px rgba(0,102,255,.1)}}
+        @keyframes hexSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+        @keyframes waterRipple{0%{transform:translate(-50%,-50%) scale(0);opacity:.8;border-width:4px}100%{transform:translate(-50%,-50%) scale(5);opacity:0;border-width:1px}}
+        @keyframes waterFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+        @keyframes waterDrop{0%{transform:translateY(-20px) scale(1);opacity:1}50%{opacity:.6}100%{transform:translateY(110vh) scale(.5);opacity:0}}
+        @keyframes waterText{0%{opacity:0;transform:translateY(40px) scale(.8)}30%{opacity:1;transform:translateY(0) scale(1.05)}50%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
+        @keyframes waterBorder{0%,100%{box-shadow:inset 0 0 25px rgba(78,205,196,.1)}50%{box-shadow:inset 0 0 50px rgba(78,205,196,.25), inset 0 0 100px rgba(0,180,212,.1)}}
+
+        @keyframes konamiRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+        @keyframes konamiFlash{0%{opacity:0}5%{opacity:1}10%{opacity:0}15%{opacity:1}20%{opacity:0}30%{opacity:.8}100%{opacity:0}}
+        @keyframes konamiStar{0%{transform:translate(var(--sx,0),var(--sy,0)) scale(0) rotate(0deg);opacity:0}20%{opacity:1;transform:translate(var(--sx,0),var(--sy,0)) scale(1.5) rotate(180deg)}100%{opacity:0;transform:translate(calc(var(--sx,0) * 3),calc(var(--sy,0) * 3)) scale(0) rotate(720deg)}}
+        @keyframes konamiBorder{0%,100%{box-shadow:inset 0 0 30px rgba(255,0,128,.15)}33%{box-shadow:inset 0 0 50px rgba(0,255,128,.2)}66%{box-shadow:inset 0 0 50px rgba(128,0,255,.2)}}
+
         .page-turning{animation:pageTurnOut .25s ease-in forwards}
         .page-turned-in{animation:pageTurnIn .25s ease-out forwards}
 
@@ -322,7 +388,11 @@ export default function MaxAnimeSoulSite() {
       `}</style>
 
       {/* Particles */}
-      <ParticleSystem type={ultraMode ? "stars" : "embers"} count={ultraMode ? 28 : 16} opacity={ultraMode ? 0.7 : 0.5} />
+      <ParticleSystem
+        type={konamiMode ? "stars" : waterMode ? "stars" : domainMode ? "stars" : ultraMode ? "stars" : "embers"}
+        count={konamiMode ? 35 : (ultraMode || domainMode || waterMode) ? 28 : 16}
+        opacity={konamiMode ? 0.8 : (ultraMode || domainMode || waterMode) ? 0.65 : 0.5}
+      />
 
       {/* ═══ ULTRA SUPER FLASH OVERLAY ═══ */}
       {ultraAnimating && (
@@ -366,6 +436,174 @@ export default function MaxAnimeSoulSite() {
       {ultraMode && !ultraAnimating && (
         <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 50, pointerEvents: "none",
           animation: "borderGlow 3s ease-in-out infinite", borderRadius: 0 }} />
+      )}
+
+      {/* ═══ DOMAIN EXPANSION — GOJO BLUE VOID ═══ */}
+      {domainAnimating && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, pointerEvents: "none" }}>
+          {/* Blue-purple void flash */}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle, #0066ff, #1a0a2e)", animation: "domainFlash 1.2s ease-out forwards" }} />
+          {/* Expanding domain sphere */}
+          <div style={{ position: "absolute", top: "50%", left: "50%", width: "300px", height: "300px",
+            background: "radial-gradient(circle, rgba(0,102,255,0.3), rgba(0,102,255,0.05))",
+            border: "2px solid rgba(0,102,255,0.6)", animation: "domainExpand 2.5s ease-out 0.4s forwards" }} />
+          {/* Second expanding ring */}
+          <div style={{ position: "absolute", top: "50%", left: "50%", width: "200px", height: "200px", borderRadius: "50%",
+            border: "2px solid #0066ff", animation: "shockwave 2s ease-out 0.6s forwards", boxShadow: "0 0 50px #0066ff" }} />
+          {/* Hex grid pattern spinning */}
+          <div aria-hidden="true" style={{ position: "absolute", inset: "-50%",
+            background: "repeating-conic-gradient(rgba(0,102,255,0.04) 0deg 2deg, transparent 2deg 10deg)",
+            animation: "hexSpin 4s linear infinite" }} />
+          {/* DOMAIN EXPANSION text */}
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+            <h1 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(28px,7vw,64px)", color: "#fff",
+              textTransform: "uppercase", textAlign: "center", padding: "0 20px",
+              textShadow: "0 0 20px #0066ff, 0 0 60px #0066ff, 0 0 100px #0066ffaa",
+              animation: "domainText 3s ease-out 0.5s both" }}>
+              DOMAIN<br/>EXPANSION
+            </h1>
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(10px,2vw,14px)", color: "#0066ff",
+              textTransform: "uppercase", letterSpacing: 6, marginTop: 16, opacity: 0,
+              animation: "sectionRise 0.8s ease-out 1.5s forwards" }}>
+              UNLIMITED VOID — ACTIVATED
+            </p>
+          </div>
+          {/* Floating geometric shapes */}
+          {[...Array(8)].map((_, i) => (
+            <div key={i} style={{ position: "absolute", top: "50%", left: "50%",
+              width: 12 + i * 4, height: 12 + i * 4, border: "1px solid rgba(0,102,255,0.5)",
+              transform: `rotate(${i * 45}deg)`, opacity: 0,
+              animation: `sfxBurst 2s ease-out ${0.3 + i * 0.15}s both`,
+              "--tx": `${Math.cos(i * 0.785) * 40}vw`, "--ty": `${Math.sin(i * 0.785) * 40}vh`, "--rot": `${i * 90}deg` }} />
+          ))}
+        </div>
+      )}
+
+      {/* DOMAIN MODE BORDER */}
+      {domainMode && !domainAnimating && (
+        <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 50, pointerEvents: "none",
+          animation: "domainBorder 4s ease-in-out infinite" }} />
+      )}
+
+      {/* ═══ WATER BREATHING — TANJIRO WATER RIPPLES ═══ */}
+      {waterAnimating && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, pointerEvents: "none" }}>
+          {/* Blue-teal water gradient */}
+          <div style={{ position: "absolute", inset: 0,
+            background: "linear-gradient(180deg, #0a2a3a, #0d4a5a, #064a5a, #0a2a3a)",
+            backgroundSize: "100% 400%", animation: "waterFlow 3s ease-in-out forwards", opacity: 0.85 }} />
+          {/* Multiple expanding water ripples */}
+          {[0, 0.3, 0.6, 0.9, 1.2].map((d, i) => (
+            <div key={i} style={{ position: "absolute", top: "50%", left: "50%", width: "150px", height: "150px", borderRadius: "50%",
+              border: `${3 - i * 0.4}px solid rgba(78,205,196,${0.7 - i * 0.1})`,
+              animation: `waterRipple 2.5s ease-out ${d}s forwards`,
+              boxShadow: `0 0 20px rgba(78,205,196,${0.3 - i * 0.05})` }} />
+          ))}
+          {/* Water droplets falling */}
+          {[...Array(20)].map((_, i) => (
+            <div key={i} style={{ position: "absolute", left: `${Math.random() * 100}%`, top: "-10px",
+              width: 3 + Math.random() * 4, height: 10 + Math.random() * 15, borderRadius: "0 0 50% 50%",
+              background: `rgba(78,205,196,${0.3 + Math.random() * 0.4})`,
+              animation: `waterDrop ${1.5 + Math.random() * 2}s linear ${Math.random() * 1.5}s both` }} />
+          ))}
+          {/* WATER BREATHING text */}
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+            <h1 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(26px,7vw,60px)", color: "#4ecdc4",
+              textTransform: "uppercase", textAlign: "center", padding: "0 20px",
+              textShadow: "0 0 15px #4ecdc4, 0 0 40px rgba(78,205,196,0.6), 0 0 80px rgba(0,180,212,0.3)",
+              animation: "waterText 2.8s ease-out 0.3s both" }}>
+              WATER<br/>BREATHING
+            </h1>
+            <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: "clamp(12px,2.5vw,18px)", color: "rgba(78,205,196,0.8)",
+              letterSpacing: 2, marginTop: 16, opacity: 0,
+              animation: "sectionRise 0.8s ease-out 1.2s forwards" }}>
+              First Form — Water Surface Slash
+            </p>
+          </div>
+          {/* SFX words */}
+          {[
+            { t: "SPLASH!", x: "-25vw", y: "-18vh", r: "-10deg", d: "0.8s" },
+            { t: "FLOW!", x: "28vw", y: "15vh", r: "8deg", d: "1s" },
+            { t: "WHOOSH!", x: "-15vw", y: "22vh", r: "-5deg", d: "1.2s" },
+          ].map((sfx, i) => (
+            <div key={i} style={{ position: "absolute", top: "50%", left: "50%",
+              fontFamily: "'Bungee Shade',cursive", fontSize: "clamp(20px,4vw,40px)", color: "#4ecdc4",
+              textShadow: "2px 2px 0 #0a2a3a", pointerEvents: "none", whiteSpace: "nowrap",
+              "--tx": sfx.x, "--ty": sfx.y, "--rot": sfx.r,
+              animation: `sfxBurst 1.5s ease-out ${sfx.d} both` }}>
+              {sfx.t}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* WATER MODE BORDER */}
+      {waterMode && !waterAnimating && (
+        <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 50, pointerEvents: "none",
+          animation: "waterBorder 4s ease-in-out infinite" }} />
+      )}
+
+      {/* ═══ KONAMI CODE — RAINBOW CHAOS MODE ═══ */}
+      {konamiAnimating && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, pointerEvents: "none" }}>
+          {/* Rainbow flash */}
+          <div style={{ position: "absolute", inset: 0,
+            background: "conic-gradient(from 0deg, #ff0080, #ff8c00, #ffd93d, #00ff88, #0066ff, #7c4dff, #e91e63, #ff0080)",
+            animation: "konamiFlash 1.5s ease-out forwards, konamiRainbow 2s linear infinite" }} />
+          {/* Multiple shockwaves in different colours */}
+          {["#ff0080", "#ffd93d", "#00ff88", "#0066ff", "#7c4dff"].map((c, i) => (
+            <div key={i} style={{ position: "absolute", top: "50%", left: "50%", width: "180px", height: "180px", borderRadius: "50%",
+              border: `3px solid ${c}`, animation: `shockwave ${1.5 + i * 0.3}s ease-out ${i * 0.2}s forwards`,
+              boxShadow: `0 0 30px ${c}` }} />
+          ))}
+          {/* Exploding stars */}
+          {[...Array(12)].map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            return (
+              <div key={i} style={{ position: "absolute", top: "50%", left: "50%",
+                width: 0, height: 0, borderLeft: "8px solid transparent", borderRight: "8px solid transparent",
+                borderBottom: `14px solid hsl(${i * 30}, 100%, 60%)`,
+                "--sx": `${Math.cos(angle) * 15}vw`, "--sy": `${Math.sin(angle) * 15}vh`,
+                animation: `konamiStar 2s ease-out ${0.2 + i * 0.08}s both` }} />
+            );
+          })}
+          {/* KONAMI text */}
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+            <h1 style={{ fontFamily: "'Bungee Shade',cursive", fontSize: "clamp(30px,8vw,68px)", color: "#fff",
+              textTransform: "uppercase", textAlign: "center", padding: "0 20px",
+              textShadow: "0 0 15px #ff0080, 0 0 30px #ffd93d, 0 0 50px #00ff88, 0 0 70px #0066ff",
+              animation: "ultraExplode 1.2s cubic-bezier(0.34,1.56,0.64,1) 0.4s both, konamiRainbow 1s linear 0.4s infinite" }}>
+              KONAMI<br/>UNLOCKED!
+            </h1>
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(10px,2vw,14px)", color: "#ffd93d",
+              textTransform: "uppercase", letterSpacing: 6, marginTop: 16, opacity: 0,
+              animation: "sectionRise 0.8s ease-out 1.8s forwards" }}>
+              ↑↑↓↓←→←→BA — GOD MODE
+            </p>
+          </div>
+          {/* SFX */}
+          {[
+            { t: "COMBO!", x: "-30vw", y: "-20vh", r: "-12deg", d: "0.7s" },
+            { t: "MAX POWER!", x: "25vw", y: "-22vh", r: "10deg", d: "1s" },
+            { t: "LEGENDARY!", x: "-18vw", y: "25vh", r: "-6deg", d: "1.3s" },
+            { t: "GOD MODE!", x: "28vw", y: "18vh", r: "15deg", d: "1.5s" },
+          ].map((sfx, i) => (
+            <div key={i} style={{ position: "absolute", top: "50%", left: "50%",
+              fontFamily: "'Bungee Shade',cursive", fontSize: "clamp(18px,4vw,36px)",
+              color: ["#ff0080", "#ffd93d", "#00ff88", "#0066ff"][i],
+              textShadow: "2px 2px 0 #0a0514", pointerEvents: "none", whiteSpace: "nowrap",
+              "--tx": sfx.x, "--ty": sfx.y, "--rot": sfx.r,
+              animation: `sfxBurst 1.5s ease-out ${sfx.d} both` }}>
+              {sfx.t}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* KONAMI MODE BORDER */}
+      {konamiMode && !konamiAnimating && (
+        <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 50, pointerEvents: "none",
+          animation: "konamiBorder 3s ease-in-out infinite" }} />
       )}
 
       <main style={{ position: "relative", zIndex: 1 }}>
@@ -632,45 +870,56 @@ export default function MaxAnimeSoulSite() {
               <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#a0a0b0", textTransform: "uppercase",
                 letterSpacing: 3, marginBottom: 20 }}>SECRET TRANSMISSION TERMINAL</p>
 
+              {/* Active modes display */}
+              {(ultraMode || domainMode || waterMode || konamiMode) && (
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+                  {ultraMode && <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: 2, color: "#ffd93d", background: "rgba(255,215,61,0.1)", padding: "4px 10px", borderRadius: 12, border: "1px solid rgba(255,215,61,0.3)" }}>⚡ ULTRA SUPER</span>}
+                  {domainMode && <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: 2, color: "#0066ff", background: "rgba(0,102,255,0.1)", padding: "4px 10px", borderRadius: 12, border: "1px solid rgba(0,102,255,0.3)" }}>♾️ DOMAIN</span>}
+                  {waterMode && <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: 2, color: "#4ecdc4", background: "rgba(78,205,196,0.1)", padding: "4px 10px", borderRadius: 12, border: "1px solid rgba(78,205,196,0.3)" }}>🌊 WATER</span>}
+                  {konamiMode && <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: 2, color: "#ff0080", background: "rgba(255,0,128,0.1)", padding: "4px 10px", borderRadius: 12, border: "1px solid rgba(255,0,128,0.3)", animation: "konamiRainbow 2s linear infinite" }}>🎮 KONAMI</span>}
+                </div>
+              )}
+
               {/* Scan lines */}
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 12, padding: 24, position: "relative", overflow: "hidden" }}>
                 <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none",
                   background: "repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 3px)" }} />
 
-                <label style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: ultraMode ? "#ffd93d" : "#651fff",
+                <label style={{ fontFamily: "'Space Mono',monospace", fontSize: 11,
+                  color: domainMode ? "#0066ff" : waterMode ? "#4ecdc4" : ultraMode ? "#ffd93d" : "#651fff",
                   textTransform: "uppercase", letterSpacing: 3, display: "block", marginBottom: 10, position: "relative" }}>
-                  {ultraMode ? "// ULTRA MODE ACTIVE //" : "ENTER SECRET CODE:"}
+                  {ultraMode && domainMode && waterMode ? "// ALL CODES ACTIVATED //" : "ENTER SECRET CODE:"}
                 </label>
                 <input
                   type="text"
                   value={secretCode}
                   onChange={(e) => setSecretCode(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSecretSubmit()}
-                  disabled={ultraMode}
-                  placeholder={ultraMode ? "LEGENDARY STATUS ACHIEVED" : "Type the secret code..."}
+                  placeholder="Type the secret code..."
                   style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "none",
-                    borderBottom: `2px solid ${ultraMode ? "#ffd93d" : "rgba(255,255,255,0.1)"}`, borderRadius: "8px 8px 0 0",
+                    borderBottom: `2px solid ${domainMode ? "#0066ff33" : waterMode ? "#4ecdc433" : ultraMode ? "#ffd93d33" : "rgba(255,255,255,0.1)"}`, borderRadius: "8px 8px 0 0",
                     color: "#e8e8e8", fontFamily: "'Space Mono',monospace", fontSize: 14, padding: "12px 14px",
-                    outline: "none", textAlign: "center", letterSpacing: 2, position: "relative",
-                    boxShadow: ultraMode ? "0 0 15px rgba(255,215,61,0.15)" : "none" }}
+                    outline: "none", textAlign: "center", letterSpacing: 2, position: "relative" }}
                 />
-                {!ultraMode && (
-                  <button onClick={handleSecretSubmit}
-                    style={{ marginTop: 16, width: "100%", padding: "12px 24px", fontFamily: "'Space Mono',monospace",
-                      fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 3,
-                      color: "#e8e8e8", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(101,31,255,0.4)",
-                      borderRadius: 8, cursor: "pointer", position: "relative", transition: "all 0.3s" }}>
-                    TRANSMIT
-                  </button>
+                <button onClick={handleSecretSubmit}
+                  style={{ marginTop: 16, width: "100%", padding: "12px 24px", fontFamily: "'Space Mono',monospace",
+                    fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 3,
+                    color: "#e8e8e8", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(101,31,255,0.4)",
+                    borderRadius: 8, cursor: "pointer", position: "relative", transition: "all 0.3s" }}>
+                  TRANSMIT
+                </button>
+
+                {/* Error/status message */}
+                {codeMessage && (
+                  <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#ff6b6b", textTransform: "uppercase",
+                    letterSpacing: 2, marginTop: 12, animation: "breathe 1s ease-in-out" }}>{codeMessage}</p>
                 )}
               </div>
 
-              {!ultraMode && (
-                <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, color: "#555", marginTop: 16, fontStyle: "italic" }}>
-                  Hint: Only true legends know the code...
-                </p>
-              )}
+              <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, color: "#555", marginTop: 16, fontStyle: "italic" }}>
+                {konamiMode ? "You know the ancient ways... ↑↑↓↓←→←→BA" : "Hint: Only true legends know the codes... there are more than one."}
+              </p>
             </div>
           );})()}
         </section>
