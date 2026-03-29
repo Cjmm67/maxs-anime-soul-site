@@ -294,7 +294,7 @@ export default function MaxAnimeSoulSite() {
         }
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{background:var(--sky-night);color:var(--text-primary);font-family:'Outfit',sans-serif;overflow-x:hidden}
+        body{background:#0a0030;color:var(--text-primary);font-family:'Outfit',sans-serif;overflow-x:hidden}
 
         @keyframes particleRise{0%{transform:translateY(110vh) translateX(0) rotate(0deg);opacity:1}80%{opacity:.6}100%{transform:translateY(-20px) translateX(var(--drift,30px)) rotate(var(--rot-end,360deg));opacity:0}}
         @keyframes particleFall{0%{transform:translateY(-20px) translateX(0) rotate(0deg)}100%{transform:translateY(110vh) translateX(var(--drift,30px)) rotate(var(--rot-end,360deg))}}
@@ -427,8 +427,8 @@ export default function MaxAnimeSoulSite() {
                     <img src="/gojo.jpeg" alt="Gojo Satoru" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,102,255,0.3) 0%, transparent 40%)", pointerEvents: "none" }} />
                   </div>
-                  <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 11, color: "#0066ff", textTransform: "uppercase", letterSpacing: 3,
-                    marginTop: 10, textShadow: "0 0 8px #0066ff55" }}>JUJUTSU KAISEN</p>
+                  <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 13, color: "#ffffff", textTransform: "uppercase", letterSpacing: 3,
+                    marginTop: 10, textShadow: "0 0 12px #0066ff, 0 0 24px #0066ff88, 0 0 4px #fff", fontWeight: 700 }}>JUJUTSU KAISEN</p>
                 </div>
                 {/* Max — center, elevated, 5X SIZE */}
                 <div style={{ textAlign: "center", marginBottom: 20, animation: "floatY 4s ease-in-out infinite", animationDelay: "0.5s", zIndex: 2 }}>
@@ -446,8 +446,8 @@ export default function MaxAnimeSoulSite() {
                     <img src="/tanjiro.jpg" alt="Tanjiro Kamado" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(233,69,96,0.3) 0%, transparent 40%)", pointerEvents: "none" }} />
                   </div>
-                  <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 11, color: "#e94560", textTransform: "uppercase", letterSpacing: 3,
-                    marginTop: 10, textShadow: "0 0 8px #e9456055" }}>DEMON SLAYER</p>
+                  <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 13, color: "#ffffff", textTransform: "uppercase", letterSpacing: 3,
+                    marginTop: 10, textShadow: "0 0 12px #e94560, 0 0 24px #e9456088, 0 0 4px #fff", fontWeight: 700 }}>DEMON SLAYER</p>
                 </div>
               </div>
 
@@ -465,11 +465,11 @@ export default function MaxAnimeSoulSite() {
                 ))}
               </div>
 
-              {/* Max name — small, bottom-left */}
+              {/* Max name — bottom-left, 5X SIZE */}
               <div style={{ position: "absolute", bottom: 24, left: 24 }}>
-                <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 14, color: ultraMode ? "#ffd93d" : "rgba(255,255,255,0.5)",
-                  letterSpacing: 2, textTransform: "uppercase" }}>
-                  Max {ultraMode && <span style={{ background: "#ffd93d", color: "#0a0514", padding: "2px 6px", borderRadius: 4, fontSize: 9, marginLeft: 6, verticalAlign: "middle" }}>ULTRA</span>}
+                <span style={{ fontFamily: "'Zen Dots',cursive", fontSize: 70, color: ultraMode ? "#ffd93d" : "rgba(255,255,255,0.7)",
+                  letterSpacing: 6, textTransform: "uppercase", textShadow: ultraMode ? "0 0 20px #ffd93d, 0 0 40px #ffd93d55" : "0 0 15px rgba(124,77,255,0.4), 0 0 30px rgba(0,102,255,0.2)", lineHeight: 1 }}>
+                  Max {ultraMode && <span style={{ background: "#ffd93d", color: "#0a0514", padding: "4px 12px", borderRadius: 8, fontSize: 20, marginLeft: 12, verticalAlign: "middle", fontFamily: "'Space Mono',monospace" }}>ULTRA</span>}
                 </span>
               </div>
             </div>
@@ -479,7 +479,7 @@ export default function MaxAnimeSoulSite() {
         {/* ═══════════════════════════════════════════════════════
             QUOTES STRIP
             ═══════════════════════════════════════════════════════ */}
-        <section style={{ background: "linear-gradient(180deg, #0a0514, #1a0a2e)", padding: "60px 20px" }}>
+        <section style={{ background: "linear-gradient(135deg, #0a0030 0%, #0066ff22 25%, #4a1a8a44 50%, #e9456022 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
           {quotes.map((q, i) => {
             const [ref, vis] = useScrollReveal();
             return (
@@ -500,7 +500,8 @@ export default function MaxAnimeSoulSite() {
             CHARACTER STATS — THE THREE GREATS
             ═══════════════════════════════════════════════════════ */}
         <section id="section-1" style={{
-          background: "linear-gradient(180deg, #1a0a2e, #0a0a1a 30%, #0a0a1a 70%, #0a1020)",
+          background: "linear-gradient(135deg, #0a0030 0%, #0066ff18 30%, #4a1a8a33 50%, #e9456018 70%, #0a0030 100%)",
+          backgroundSize: "300% 300%", animation: "gradientShift 25s ease-in-out infinite",
           padding: "80px 20px",
         }}>
           {(() => { const [ref, vis] = useScrollReveal(); return (
@@ -550,7 +551,8 @@ export default function MaxAnimeSoulSite() {
             MANGA PAGES — DISCOVER THE LEGENDS
             ═══════════════════════════════════════════════════════ */}
         <section id="section-2" style={{
-          background: "linear-gradient(180deg, #0a1020, #0d0d1a, #1a0a1a)",
+          background: "linear-gradient(135deg, #0a0030 0%, #0066ff15 20%, #4a1a8a30 45%, #e9456020 70%, #0a0030 100%)",
+          backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
           padding: "80px 20px", position: "relative",
         }}>
           {(() => { const [ref, vis] = useScrollReveal(); return (
@@ -598,7 +600,7 @@ export default function MaxAnimeSoulSite() {
         {/* ═══════════════════════════════════════════════════════
             SECOND QUOTES — More Inspiration
             ═══════════════════════════════════════════════════════ */}
-        <section id="section-3" style={{ background: "linear-gradient(180deg, #1a0a1a, #0a0514)", padding: "70px 20px" }}>
+        <section id="section-3" style={{ background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a30 40%, #0066ff18 60%, #e9456015 80%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 18s ease-in-out infinite", padding: "70px 20px" }}>
           {(() => { const [ref, vis] = useScrollReveal(); return (
             <div ref={ref} style={{ textAlign: "center", maxWidth: 600, margin: "0 auto",
               opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(25px)", transition: "all 0.7s ease" }}>
@@ -619,7 +621,7 @@ export default function MaxAnimeSoulSite() {
             SECRET ULTRA SUPER CODE
             ═══════════════════════════════════════════════════════ */}
         <section id="section-4" style={{
-          background: "linear-gradient(180deg, #0a0514, #150a28)", padding: "80px 20px", position: "relative",
+          background: "linear-gradient(135deg, #0a0030 0%, #0066ff15 25%, #4a1a8a30 50%, #e9456018 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
         }}>
           {/* Subtle ? hint */}
           {(() => { const [ref, vis] = useScrollReveal(); return (
@@ -678,7 +680,8 @@ export default function MaxAnimeSoulSite() {
             ═══════════════════════════════════════════════════════ */}
         {ultraMode && (
           <section style={{
-            background: "linear-gradient(180deg, #150a28, #0a0514, #1a0a2e)",
+            background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a35 30%, #0066ff20 50%, #e9456020 70%, #0a0030 100%)",
+            backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite",
             padding: "80px 20px", textAlign: "center",
           }}>
             {(() => { const [ref, vis] = useScrollReveal(); return (
@@ -725,8 +728,8 @@ export default function MaxAnimeSoulSite() {
             FOOTER — ED SEQUENCE
             ═══════════════════════════════════════════════════════ */}
         <section style={{
-          background: "linear-gradient(to top, #e94560 0%, #4a1a8a 25%, #16213e 50%, #0a0514 100%)",
-          backgroundSize: "100% 300%", padding: "80px 20px", textAlign: "center", position: "relative",
+          background: "linear-gradient(135deg, #0a0030 0%, #0066ff 25%, #4a1a8a 50%, #e94560 75%, #0a0030 100%)",
+          backgroundSize: "300% 300%", animation: "gradientShift 15s ease-in-out infinite", padding: "80px 20px", textAlign: "center", position: "relative",
         }}>
           {/* Stars */}
           {Array.from({ length: 30 }, (_, i) => (
