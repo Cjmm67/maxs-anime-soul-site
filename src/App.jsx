@@ -207,9 +207,173 @@ const MangaCard = ({ manga, isActive, onClick }) => {
   );
 };
 
-// ═══════════════════════════════════════════════════════════
-// MAIN APP
-// ═══════════════════════════════════════════════════════════
+// ─── RevealDiv (proper component — fixes hooks-in-IIFE crash) ─
+const RevealDiv = ({ children, style = {}, delay = 0 }) => {
+  const [ref, vis] = useScrollReveal();
+  return (
+    <div ref={ref} style={{ opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(30px)",
+      transition: `all 0.7s ease ${delay}s`, ...style }}>
+      {typeof children === "function" ? children(vis) : children}
+    </div>
+  );
+};
+
+// ─── QuoteCard (proper component — no hooks in map) ────────
+const QuoteCard = ({ q, i }) => {
+  const [ref, vis] = useScrollReveal();
+  return (
+    <div ref={ref} style={{ textAlign: "center", maxWidth: 650, margin: "0 auto 40px",
+      opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(20px)", transition: `all 0.6s ease ${i * 0.15}s` }}>
+      <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: "clamp(15px,2.5vw,20px)",
+        color: "#d0d0d8", lineHeight: 1.9, textShadow: `0 0 20px ${q.color}22` }}>
+        "{q.text}"
+      </p>
+      <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: q.color, textTransform: "uppercase",
+        letterSpacing: 2, marginTop: 10 }}>— {q.by}</p>
+    </div>
+  );
+};
+
+// ─── CharacterCard (proper component — fixes hooks-in-map crash) ─
+const CharacterCard = ({ c, ci, ultraMode }) => {
+  const [ref, vis] = useScrollReveal();
+  const isMax = c.name === "Max";
+  return (
+    <div ref={ref} style={{
+      background: "rgba(255,255,255,0.03)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+      border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "28px 24px", position: "relative", overflow: "hidden",
+      opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(30px) scale(0.97)",
+      transition: `all 0.7s ease ${ci * 0.15}s`,
+    }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3,
+        background: `linear-gradient(90deg, transparent, ${c.color}, transparent)` }} />
+      <div style={{ textAlign: "center", marginBottom: 22 }}>
+        <h3 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 20, color: "#e8e8e8", textTransform: "uppercase", letterSpacing: 3, marginBottom: 4 }}>{c.name}</h3>
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: c.color, textTransform: "uppercase", letterSpacing: 3 }}>{c.title}</p>
+      </div>
+      {c.stats.map((s, si) => (
+        <StatBar key={s.l} label={s.l} value={s.v} color={isMax ? (si % 2 === 0 ? "#7c4dff" : "#ffd93d") : c.color}
+          delay={0.3 + si * 0.12} ultra={ultraMode && isMax} />
+      ))}
+      <div style={{ marginTop: 16, textAlign: "center" }}>
+        <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: 12, color: "#a0a0b0" }}>Signature</p>
+        <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: c.color, fontWeight: 600, letterSpacing: 1 }}>{c.sig}</p>
+      </div>
+    </div>
+  );
+};
+
+// ─── FooterCredits (proper component — fixes hooks-in-IIFE crash) ─
+const FooterCredits = () => {
+  const [ref, vis] = useScrollReveal();
+  return (
+    <div ref={ref} style={{ position: "relative", zIndex: 1,
+      opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(40px)", transition: "all 1s ease" }}>
+      <p style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 300, fontSize: 13, color: "#a0a0b0",
+        letterSpacing: 1, lineHeight: 2.2, marginBottom: 8 }}>Created with love and late-night anime marathons</p>
+      <p style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 300, fontSize: 12, color: "#707080",
+        letterSpacing: 1, marginBottom: 32 }}>React • CSS Animations • SVG Characters • Pure Imagination</p>
+      <h3 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 24, color: "#e8e8e8", textTransform: "uppercase",
+        letterSpacing: 6, animation: vis ? "titleBloom 1.5s ease-out 0.5s both" : "none" }}>MAX</h3>
+      <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: 17, color: "#ffd93d",
+        marginTop: 20, animation: "breathe 3s ease-in-out 1s infinite", opacity: 0.85 }}>
+        To Be Continued...
+      </p>
+      <a href="#section-0" style={{ display: "inline-block", marginTop: 32, fontFamily: "'Space Mono',monospace",
+        fontSize: 11, color: "#707080", textDecoration: "none", textTransform: "uppercase", letterSpacing: 2,
+        transition: "color 0.3s" }}
+        onMouseEnter={(e) => e.target.style.color = "#e8e8e8"}
+        onMouseLeave={(e) => e.target.style.color = "#707080"}>
+        ← Back to Episode 01
+      </a>
+    </div>
+  );
+};
+
+// ─── Page Turner — Comic book page flip, bottom-right corner ────
+const PageTurner = () => {
+  const [page, setPage] = useState(0);
+  const [flipping, setFlipping] = useState(false);
+  const pages = [
+    { bg: "linear-gradient(135deg, #0a0040, #0066ff44)", label: "JJK", color: "#0066ff",
+      lines: ["Cursed", "Energy"] },
+    { bg: "linear-gradient(135deg, #1a0a30, #e9456044)", label: "DS", color: "#e94560",
+      lines: ["Water", "Breathing"] },
+    { bg: "linear-gradient(135deg, #1a0a30, #ff8c0044)", label: "NRT", color: "#ff8c00",
+      lines: ["Believe", "It!"] },
+    { bg: "linear-gradient(135deg, #1a0a30, #7c4dff44)", label: "MAX", color: "#ffd93d",
+      lines: ["Legend", "Mode"] },
+  ];
+
+  const flip = () => {
+    if (flipping) return;
+    setFlipping(true);
+    setTimeout(() => {
+      setPage((p) => (p + 1) % pages.length);
+      setFlipping(false);
+    }, 600);
+  };
+
+  const cur = pages[page];
+  const next = pages[(page + 1) % pages.length];
+  const stack = pages[(page + 2) % pages.length];
+
+  return (
+    <div onClick={flip} title="Turn the page!"
+      style={{ position: "fixed", bottom: 24, right: 24, zIndex: 60, cursor: "pointer",
+        perspective: "1000px", width: 72, height: 96 }}>
+      {/* Page stack behind (3rd page) */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: 4,
+        background: stack.bg, border: "1px solid rgba(255,255,255,0.06)",
+        transform: "translateX(-4px) translateY(4px)", zIndex: 0 }} />
+      {/* Next page (2nd) */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: 4,
+        background: next.bg, border: "1px solid rgba(255,255,255,0.08)",
+        transform: "translateX(-2px) translateY(2px)", zIndex: 1,
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: next.color,
+          textTransform: "uppercase", letterSpacing: 2, opacity: 0.6 }}>{next.label}</span>
+      </div>
+      {/* Active page — flips on click */}
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: 4,
+        background: cur.bg, border: `1.5px solid ${cur.color}44`,
+        boxShadow: `0 4px 16px rgba(0,0,0,0.4), 0 0 12px ${cur.color}22`,
+        transformOrigin: "left center", zIndex: 2,
+        transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
+        transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+        backfaceVisibility: "hidden",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        overflow: "hidden", padding: 6,
+      }}>
+        {/* Speed lines on page */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: "-20%",
+          background: `repeating-conic-gradient(${cur.color}08 0deg 1deg, transparent 1deg 8deg)`,
+          pointerEvents: "none" }} />
+        {/* Panel border inside */}
+        <div style={{ position: "absolute", inset: 4, border: `1px solid ${cur.color}33`, borderRadius: 2, pointerEvents: "none" }} />
+        {/* Content */}
+        <span style={{ fontFamily: "'Zen Dots',cursive", fontSize: 10, color: cur.color,
+          textTransform: "uppercase", letterSpacing: 2, textShadow: `0 0 6px ${cur.color}44`,
+          position: "relative", zIndex: 1 }}>{cur.label}</span>
+        <span style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 7, color: "rgba(255,255,255,0.4)",
+          marginTop: 3, textAlign: "center", lineHeight: 1.3, position: "relative", zIndex: 1 }}>
+          {cur.lines[0]}<br/>{cur.lines[1]}
+        </span>
+      </div>
+      {/* Corner fold indicator */}
+      <div style={{ position: "absolute", bottom: 0, right: 0, width: 14, height: 14, zIndex: 3,
+        background: `linear-gradient(135deg, transparent 50%, ${cur.color}33 50%)`,
+        borderRadius: "0 0 4px 0", pointerEvents: "none",
+        animation: "breathe 2s ease-in-out infinite" }} />
+      {/* "TURN" hint below */}
+      <p style={{ position: "absolute", bottom: -16, left: 0, right: 0, textAlign: "center",
+        fontFamily: "'Space Mono',monospace", fontSize: 7, color: "rgba(255,255,255,0.25)",
+        textTransform: "uppercase", letterSpacing: 2 }}>TURN →</p>
+    </div>
+  );
+};
+
 export default function MaxAnimeSoulSite() {
   const [introPhase, setIntroPhase] = useState(0); // 0=dark, 1=typing, 2=revealed
   const [typeText, setTypeText] = useState("");
@@ -718,20 +882,7 @@ export default function MaxAnimeSoulSite() {
             QUOTES STRIP
             ═══════════════════════════════════════════════════════ */}
         <section style={{ background: "linear-gradient(135deg, #0a0030 0%, #0066ff22 25%, #4a1a8a44 50%, #e9456022 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
-          {quotes.map((q, i) => {
-            const [ref, vis] = useScrollReveal();
-            return (
-              <div key={i} ref={ref} style={{ textAlign: "center", maxWidth: 650, margin: "0 auto 40px",
-                opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(20px)", transition: `all 0.6s ease ${i * 0.15}s` }}>
-                <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: "clamp(15px,2.5vw,20px)",
-                  color: "#d0d0d8", lineHeight: 1.9, textShadow: `0 0 20px ${q.color}22` }}>
-                  "{q.text}"
-                </p>
-                <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: q.color, textTransform: "uppercase",
-                  letterSpacing: 2, marginTop: 10 }}>— {q.by}</p>
-              </div>
-            );
-          })}
+          {quotes.map((q, i) => <QuoteCard key={i} q={q} i={i} />)}
         </section>
 
         {/* ═══════════════════════════════════════════════════════
@@ -742,46 +893,21 @@ export default function MaxAnimeSoulSite() {
           backgroundSize: "300% 300%", animation: "gradientShift 25s ease-in-out infinite",
           padding: "80px 20px",
         }}>
-          {(() => { const [ref, vis] = useScrollReveal(); return (
-            <div ref={ref} style={{ textAlign: "center", marginBottom: 50, opacity: vis ? 1 : 0,
-              transform: vis ? "none" : "translateY(30px)", transition: "all 0.6s ease" }}>
+          <RevealDiv style={{ textAlign: "center", marginBottom: 50 }}>
+            {(vis) => (<>
               <div style={{ width: 12, height: 12, background: "var(--glow-cool)", transform: "rotate(45deg)",
                 margin: "0 auto 20px", boxShadow: "0 0 12px var(--glow-cool)",
                 animation: vis ? "breathe 3s ease-in-out infinite" : "none" }} />
               <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#a0a0b0", textTransform: "uppercase", letterSpacing: 4, marginBottom: 6 }}>Episode 02</p>
               <h2 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(22px,5vw,36px)", color: "#e8e8e8", textTransform: "uppercase",
                 letterSpacing: 4, textShadow: "0 0 10px rgba(101,31,255,0.3)" }}>THE THREE GREATS</h2>
-            </div>
-          );})()}
+            </>)}
+          </RevealDiv>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 960, margin: "0 auto" }}>
-            {characters.map((c, ci) => {
-              const [ref, vis] = useScrollReveal();
-              const isMax = c.name === "Max";
-              return (
-                <div key={c.name} ref={ref} style={{
-                  background: "rgba(255,255,255,0.03)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "28px 24px", position: "relative", overflow: "hidden",
-                  opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(30px) scale(0.97)",
-                  transition: `all 0.7s ease ${ci * 0.15}s`,
-                }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3,
-                    background: `linear-gradient(90deg, transparent, ${c.color}, transparent)` }} />
-                  <div style={{ textAlign: "center", marginBottom: 22 }}>
-                    <h3 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 20, color: "#e8e8e8", textTransform: "uppercase", letterSpacing: 3, marginBottom: 4 }}>{c.name}</h3>
-                    <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: c.color, textTransform: "uppercase", letterSpacing: 3 }}>{c.title}</p>
-                  </div>
-                  {c.stats.map((s, si) => (
-                    <StatBar key={s.l} label={s.l} value={s.v} color={isMax ? (si % 2 === 0 ? "#7c4dff" : "#ffd93d") : c.color}
-                      delay={0.3 + si * 0.12} ultra={ultraMode && isMax} />
-                  ))}
-                  <div style={{ marginTop: 16, textAlign: "center" }}>
-                    <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: 12, color: "#a0a0b0" }}>Signature</p>
-                    <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: c.color, fontWeight: 600, letterSpacing: 1 }}>{c.sig}</p>
-                  </div>
-                </div>
-              );
-            })}
+            {characters.map((c, ci) => (
+              <CharacterCard key={c.name} c={c} ci={ci} ultraMode={ultraMode} />
+            ))}
           </div>
         </section>
 
@@ -793,9 +919,8 @@ export default function MaxAnimeSoulSite() {
           backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
           padding: "80px 20px", position: "relative",
         }}>
-          {(() => { const [ref, vis] = useScrollReveal(); return (
-            <div ref={ref} style={{ textAlign: "center", marginBottom: 50, opacity: vis ? 1 : 0,
-              transform: vis ? "none" : "translateY(30px)", transition: "all 0.6s ease" }}>
+          <RevealDiv style={{ textAlign: "center", marginBottom: 50 }}>
+            {(vis) => (<>
               <div style={{ width: 12, height: 12, background: "#e94560", transform: "rotate(45deg)",
                 margin: "0 auto 20px", boxShadow: "0 0 12px #e94560", animation: vis ? "breathe 3s ease-in-out infinite" : "none" }} />
               <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#a0a0b0", textTransform: "uppercase", letterSpacing: 4, marginBottom: 6 }}>Episode 03</p>
@@ -804,8 +929,8 @@ export default function MaxAnimeSoulSite() {
               <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 14, color: "#a0a0b0", marginTop: 12, maxWidth: 450, margin: "12px auto 0" }}>
                 Each page is a gateway into a legendary manga world. Explore the stories that shaped a generation.
               </p>
-            </div>
-          );})()}
+            </>)}
+          </RevealDiv>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, maxWidth: 960, margin: "0 auto" }}
             className={pageTurn ? "page-turning" : ""}>
@@ -839,20 +964,17 @@ export default function MaxAnimeSoulSite() {
             SECOND QUOTES — More Inspiration
             ═══════════════════════════════════════════════════════ */}
         <section id="section-3" style={{ background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a30 40%, #0066ff18 60%, #e9456015 80%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 18s ease-in-out infinite", padding: "70px 20px" }}>
-          {(() => { const [ref, vis] = useScrollReveal(); return (
-            <div ref={ref} style={{ textAlign: "center", maxWidth: 600, margin: "0 auto",
-              opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(25px)", transition: "all 0.7s ease" }}>
-              <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(16px,3.5vw,26px)", color: "#ffd93d",
-                textTransform: "uppercase", letterSpacing: 3, lineHeight: 1.8,
-                textShadow: "0 0 12px rgba(255,215,61,0.3), 0 0 30px rgba(255,215,61,0.15)" }}>
-                THE POWER OF THE THREE GREATS AWAKENS THE LEGENDS
-              </p>
-              <div style={{ width: 50, height: 2, background: "linear-gradient(90deg, transparent, #ffd93d, transparent)", margin: "24px auto" }} />
-              <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: 15, color: "#a0a0b0", lineHeight: 1.8 }}>
-                Three heroes. Three paths. One legendary story.
-              </p>
-            </div>
-          );})()}
+          <RevealDiv style={{ textAlign: "center", maxWidth: 600, margin: "0 auto" }}>
+            <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(16px,3.5vw,26px)", color: "#ffd93d",
+              textTransform: "uppercase", letterSpacing: 3, lineHeight: 1.8,
+              textShadow: "0 0 12px rgba(255,215,61,0.3), 0 0 30px rgba(255,215,61,0.15)" }}>
+              THE POWER OF THE THREE GREATS AWAKENS THE LEGENDS
+            </p>
+            <div style={{ width: 50, height: 2, background: "linear-gradient(90deg, transparent, #ffd93d, transparent)", margin: "24px auto" }} />
+            <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: 15, color: "#a0a0b0", lineHeight: 1.8 }}>
+              Three heroes. Three paths. One legendary story.
+            </p>
+          </RevealDiv>
         </section>
 
         {/* ═══════════════════════════════════════════════════════
@@ -862,9 +984,7 @@ export default function MaxAnimeSoulSite() {
           background: "linear-gradient(135deg, #0a0030 0%, #0066ff15 25%, #4a1a8a30 50%, #e9456018 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
         }}>
           {/* Subtle ? hint */}
-          {(() => { const [ref, vis] = useScrollReveal(); return (
-            <div ref={ref} style={{ maxWidth: 420, margin: "0 auto", textAlign: "center",
-              opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(30px)", transition: "all 0.7s ease" }}>
+          <RevealDiv style={{ maxWidth: 420, margin: "0 auto", textAlign: "center" }}>
               <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffd93d", margin: "0 auto 20px",
                 boxShadow: "0 0 12px #ffd93d", animation: "breathe 2s ease-in-out infinite" }} />
               <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#a0a0b0", textTransform: "uppercase",
@@ -920,22 +1040,20 @@ export default function MaxAnimeSoulSite() {
               <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, color: "#555", marginTop: 16, fontStyle: "italic" }}>
                 {konamiMode ? "You know the ancient ways... ↑↑↓↓←→←→BA" : "Hint: Only true legends know the codes... there are more than one."}
               </p>
-            </div>
-          );})()}
+          </RevealDiv>
         </section>
 
         {/* ═══════════════════════════════════════════════════════
-            ULTRA SECRET BONUS SECTION (hidden until Ultra Mode)
+            ULTRA SECRET BONUS SECTION — always rendered, shown via CSS
             ═══════════════════════════════════════════════════════ */}
-        {ultraMode && (
-          <section style={{
-            background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a35 30%, #0066ff20 50%, #e9456020 70%, #0a0030 100%)",
-            backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite",
-            padding: "80px 20px", textAlign: "center",
-          }}>
-            {(() => { const [ref, vis] = useScrollReveal(); return (
-              <div ref={ref} style={{ maxWidth: 600, margin: "0 auto",
-                opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(40px)", transition: "all 0.8s ease" }}>
+        <section style={{
+          background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a35 30%, #0066ff20 50%, #e9456020 70%, #0a0030 100%)",
+          backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite",
+          padding: ultraMode ? "80px 20px" : 0, textAlign: "center",
+          maxHeight: ultraMode ? "2000px" : 0, overflow: "hidden",
+          opacity: ultraMode ? 1 : 0, transition: "all 0.8s ease",
+        }}>
+          <RevealDiv style={{ maxWidth: 600, margin: "0 auto" }}>
                 <div style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #ffd93d, #7c4dff)",
                   margin: "0 auto 24px", display: "flex", alignItems: "center", justifyContent: "center",
                   boxShadow: "0 0 30px #ffd93d44, 0 0 60px #7c4dff22", animation: "breathe 3s ease-in-out infinite" }}>
@@ -969,9 +1087,8 @@ export default function MaxAnimeSoulSite() {
                   ))}
                 </div>
               </div>
-            );})()}
-          </section>
-        )}
+          </RevealDiv>
+        </section>
 
         {/* ═══════════════════════════════════════════════════════
             FOOTER — ED SEQUENCE
@@ -989,34 +1106,13 @@ export default function MaxAnimeSoulSite() {
               animation: `breathe ${2 + Math.random() * 3}s ease-in-out infinite` }} />
           ))}
 
-          {(() => { const [ref, vis] = useScrollReveal(); return (
-            <div ref={ref} style={{ position: "relative", zIndex: 1,
-              opacity: vis ? 1 : 0, transform: vis ? "none" : "translateY(40px)", transition: "all 1s ease" }}>
-              <p style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 300, fontSize: 13, color: "#a0a0b0",
-                letterSpacing: 1, lineHeight: 2.2, marginBottom: 8 }}>Created with love and late-night anime marathons</p>
-              <p style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 300, fontSize: 12, color: "#707080",
-                letterSpacing: 1, marginBottom: 32 }}>React • CSS Animations • SVG Characters • Pure Imagination</p>
-
-              <h3 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 24, color: "#e8e8e8", textTransform: "uppercase",
-                letterSpacing: 6, animation: vis ? "titleBloom 1.5s ease-out 0.5s both" : "none" }}>MAX</h3>
-
-              <p style={{ fontFamily: "'Noto Serif JP',serif", fontStyle: "italic", fontSize: 17, color: "#ffd93d",
-                marginTop: 20, animation: "breathe 3s ease-in-out 1s infinite", opacity: 0.85 }}>
-                To Be Continued...
-              </p>
-
-              <a href="#section-0" style={{ display: "inline-block", marginTop: 32, fontFamily: "'Space Mono',monospace",
-                fontSize: 11, color: "#707080", textDecoration: "none", textTransform: "uppercase", letterSpacing: 2,
-                transition: "color 0.3s" }}
-                onMouseEnter={(e) => e.target.style.color = "#e8e8e8"}
-                onMouseLeave={(e) => e.target.style.color = "#707080"}>
-                ← Back to Episode 01
-              </a>
-            </div>
-          );})()}
+          <FooterCredits />
         </section>
 
       </main>
+
+      {/* Page Turner — fixed bottom-right comic flip */}
+      <PageTurner />
     </>
   );
 }
