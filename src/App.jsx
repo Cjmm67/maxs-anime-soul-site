@@ -260,13 +260,13 @@ export default function MaxAnimeSoulSite() {
   ];
 
   const mangaPages = [
-    { title: "Naruto", accent: "#ff8c00", bg: "linear-gradient(135deg, #1a0a00, #3a1a00, #1a0a00)",
+    { title: "Naruto", accent: "#ff8c00", bg: "linear-gradient(135deg, #1a0a30, #3a1a40, #2a1020)",
       desc: "Follow Naruto Uzumaki on his quest to become the greatest Hokage! A tale of friendship, perseverance, and never giving up — even when the whole world counts you out.",
       tags: ["Action", "Adventure", "Ninja"] },
-    { title: "Jujutsu Kaisen", accent: "#0066ff", bg: "linear-gradient(135deg, #0a0a2e, #1a1050, #0a0a2e)",
+    { title: "Jujutsu Kaisen", accent: "#0066ff", bg: "linear-gradient(135deg, #0a0040, #1a1060, #0a0040)",
       desc: "Enter a world of cursed energy and sorcerers. Where Gojo Satoru stands as the strongest and every battle pushes the limits of power. The supernatural has never been this intense.",
       tags: ["Action", "Supernatural", "Dark Fantasy"] },
-    { title: "Demon Slayer", accent: "#e94560", bg: "linear-gradient(135deg, #0a1a0a, #1a3020, #0a1a0a)",
+    { title: "Demon Slayer", accent: "#e94560", bg: "linear-gradient(135deg, #1a0a30, #2a1040, #1a0a30)",
       desc: "Tanjiro Kamado swings his blade with the fury of the sun and the grace of water. A breathtaking journey of a boy who fights demons to save his sister and protect humanity.",
       tags: ["Action", "Supernatural", "Historical"] },
   ];
@@ -443,7 +443,7 @@ export default function MaxAnimeSoulSite() {
                   <div style={{ width: "clamp(140px,20vw,220px)", height: "clamp(180px,26vw,300px)", borderRadius: 16, overflow: "hidden",
                     border: "2px solid rgba(233,69,96,0.4)", boxShadow: "0 0 30px rgba(233,69,96,0.3), 0 8px 32px rgba(0,0,0,0.5)",
                     position: "relative" }}>
-                    <img src="/tanjiro.jpg" alt="Tanjiro Kamado" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+                    <img src="/tanjiro.jpg" alt="Tanjiro Kamado" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%" }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(233,69,96,0.3) 0%, transparent 40%)", pointerEvents: "none" }} />
                   </div>
                   <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 13, color: "#ffffff", textTransform: "uppercase", letterSpacing: 3,
