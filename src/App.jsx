@@ -71,7 +71,7 @@ const GojoSVG = ({ glow }) => (
 
 // ─── SVG Character: Max (center hero, slightly bigger) ──────
 const MaxSVG = ({ glow }) => (
-  <svg viewBox="0 0 130 220" width="130" height="220" style={{ filter: `drop-shadow(0 0 24px ${glow})` }}>
+  <svg viewBox="0 0 130 220" width="650" height="1100" style={{ filter: `drop-shadow(0 0 24px ${glow})`, maxHeight: "65vh", width: "auto" }}>
     {/* Spiky creative-energy hair - purple with gold tips */}
     <path d="M40 55 L30 15 L50 40" fill="#7c4dff" />
     <path d="M55 50 L50 5 L65 38" fill="#7c4dff" />
@@ -418,24 +418,36 @@ export default function MaxAnimeSoulSite() {
               </div>
 
               {/* THREE CHARACTERS */}
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: "clamp(8px,3vw,32px)", marginBottom: 24, flexWrap: "wrap" }}>
-                {/* Gojo */}
+              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: "clamp(12px,3vw,40px)", marginBottom: 24, flexWrap: "wrap" }}>
+                {/* Gojo — real image */}
                 <div style={{ textAlign: "center", animation: "floatY 4s ease-in-out infinite", animationDelay: "0s" }}>
-                  <GojoSVG glow="#0066ff" />
+                  <div style={{ width: "clamp(140px,20vw,220px)", height: "clamp(180px,26vw,300px)", borderRadius: 16, overflow: "hidden",
+                    border: "2px solid rgba(0,102,255,0.4)", boxShadow: "0 0 30px rgba(0,102,255,0.3), 0 8px 32px rgba(0,0,0,0.5)",
+                    position: "relative" }}>
+                    <img src="/gojo.jpeg" alt="Gojo Satoru" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,102,255,0.3) 0%, transparent 40%)", pointerEvents: "none" }} />
+                  </div>
                   <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 11, color: "#0066ff", textTransform: "uppercase", letterSpacing: 3,
-                    marginTop: 8, textShadow: "0 0 8px #0066ff55" }}>JUJUTSU KAISEN</p>
+                    marginTop: 10, textShadow: "0 0 8px #0066ff55" }}>JUJUTSU KAISEN</p>
                 </div>
-                {/* Max — center, elevated */}
-                <div style={{ textAlign: "center", marginBottom: 20, animation: "floatY 4s ease-in-out infinite", animationDelay: "0.5s" }}>
-                  <MaxSVG glow="#7c4dff" />
-                  <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 11, color: "#ffd93d", textTransform: "uppercase", letterSpacing: 3,
-                    marginTop: 8, textShadow: "0 0 8px #ffd93d55" }}>THE CREATIVE LEGEND</p>
+                {/* Max — center, elevated, 5X SIZE */}
+                <div style={{ textAlign: "center", marginBottom: 20, animation: "floatY 4s ease-in-out infinite", animationDelay: "0.5s", zIndex: 2 }}>
+                  <div style={{ filter: "drop-shadow(0 0 40px #7c4dff) drop-shadow(0 0 80px rgba(255,215,61,0.3))" }}>
+                    <MaxSVG glow="#7c4dff" />
+                  </div>
+                  <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(13px,2vw,18px)", color: "#ffd93d", textTransform: "uppercase", letterSpacing: 4,
+                    marginTop: 10, textShadow: "0 0 12px #ffd93d55" }}>THE CREATIVE LEGEND</p>
                 </div>
-                {/* Tanjiro */}
+                {/* Tanjiro — real image */}
                 <div style={{ textAlign: "center", animation: "floatY 4s ease-in-out infinite", animationDelay: "1s" }}>
-                  <TanjiroSVG glow="#e94560" />
+                  <div style={{ width: "clamp(140px,20vw,220px)", height: "clamp(180px,26vw,300px)", borderRadius: 16, overflow: "hidden",
+                    border: "2px solid rgba(233,69,96,0.4)", boxShadow: "0 0 30px rgba(233,69,96,0.3), 0 8px 32px rgba(0,0,0,0.5)",
+                    position: "relative" }}>
+                    <img src="/tanjiro.jpg" alt="Tanjiro Kamado" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(233,69,96,0.3) 0%, transparent 40%)", pointerEvents: "none" }} />
+                  </div>
                   <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 11, color: "#e94560", textTransform: "uppercase", letterSpacing: 3,
-                    marginTop: 8, textShadow: "0 0 8px #e9456055" }}>DEMON SLAYER</p>
+                    marginTop: 10, textShadow: "0 0 8px #e9456055" }}>DEMON SLAYER</p>
                 </div>
               </div>
 
