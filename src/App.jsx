@@ -290,87 +290,71 @@ const FooterCredits = () => {
   );
 };
 
-// ─── Page Turner — Comic book page flip, bottom-right corner ────
-const PageTurner = () => {
-  const [page, setPage] = useState(0);
-  const [flipping, setFlipping] = useState(false);
-  const pages = [
-    { bg: "linear-gradient(135deg, #0a0040, #0066ff44)", label: "JJK", color: "#0066ff",
-      lines: ["Cursed", "Energy"] },
-    { bg: "linear-gradient(135deg, #1a0a30, #e9456044)", label: "DS", color: "#e94560",
-      lines: ["Water", "Breathing"] },
-    { bg: "linear-gradient(135deg, #1a0a30, #ff8c0044)", label: "NRT", color: "#ff8c00",
-      lines: ["Believe", "It!"] },
-    { bg: "linear-gradient(135deg, #1a0a30, #7c4dff44)", label: "MAX", color: "#ffd93d",
-      lines: ["Legend", "Mode"] },
-  ];
+// ─── Page Turner — Comic book arrows in both bottom corners ────
+const PageTurner = ({ sectionCount }) => {
+  const [current, setCurrent] = useState(0);
+  const [flipping, setFlipping] = useState(null); // 'left' | 'right' | null
+  const sectionIds = ["section-hero", "section-quotes", "section-1", "section-2", "section-3", "section-4", "section-ultra", "section-footer"];
+  const total = sectionIds.length;
 
-  const flip = () => {
+  const navigate = (dir) => {
     if (flipping) return;
-    setFlipping(true);
+    const next = dir === "right" ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
+    if (next === current) return;
+    setFlipping(dir);
     setTimeout(() => {
-      setPage((p) => (p + 1) % pages.length);
-      setFlipping(false);
-    }, 600);
+      setCurrent(next);
+      setFlipping(null);
+      const el = document.getElementById(sectionIds[next]);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 400);
   };
 
-  const cur = pages[page];
-  const next = pages[(page + 1) % pages.length];
-  const stack = pages[(page + 2) % pages.length];
+  const btnBase = {
+    position: "fixed", bottom: 16, zIndex: 70, cursor: "pointer",
+    display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+    background: "none", border: "none", padding: 0,
+  };
+
+  const arrowStyle = (dir, disabled) => ({
+    width: 48, height: 48, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+    background: disabled ? "rgba(255,255,255,0.03)" : "linear-gradient(135deg, #e94560, #7c4dff)",
+    border: disabled ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(255,255,255,0.2)",
+    boxShadow: disabled ? "none" : "0 4px 20px rgba(233,69,96,0.3), 0 0 15px rgba(124,77,255,0.2)",
+    transition: "all 0.3s ease",
+    transform: flipping === dir ? (dir === "right" ? "perspective(600px) rotateY(-25deg)" : "perspective(600px) rotateY(25deg)") : "none",
+    opacity: disabled ? 0.3 : 1,
+  });
+
+  const isFirst = current === 0;
+  const isLast = current === total - 1;
 
   return (
-    <div onClick={flip} title="Turn the page!"
-      style={{ position: "fixed", bottom: 24, right: 24, zIndex: 60, cursor: "pointer",
-        perspective: "1000px", width: 72, height: 96 }}>
-      {/* Page stack behind (3rd page) */}
-      <div style={{ position: "absolute", inset: 0, borderRadius: 4,
-        background: stack.bg, border: "1px solid rgba(255,255,255,0.06)",
-        transform: "translateX(-4px) translateY(4px)", zIndex: 0 }} />
-      {/* Next page (2nd) */}
-      <div style={{ position: "absolute", inset: 0, borderRadius: 4,
-        background: next.bg, border: "1px solid rgba(255,255,255,0.08)",
-        transform: "translateX(-2px) translateY(2px)", zIndex: 1,
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: next.color,
-          textTransform: "uppercase", letterSpacing: 2, opacity: 0.6 }}>{next.label}</span>
-      </div>
-      {/* Active page — flips on click */}
-      <div style={{
-        position: "absolute", inset: 0, borderRadius: 4,
-        background: cur.bg, border: `1.5px solid ${cur.color}44`,
-        boxShadow: `0 4px 16px rgba(0,0,0,0.4), 0 0 12px ${cur.color}22`,
-        transformOrigin: "left center", zIndex: 2,
-        transform: flipping ? "rotateY(-180deg)" : "rotateY(0deg)",
-        transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-        backfaceVisibility: "hidden",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        overflow: "hidden", padding: 6,
-      }}>
-        {/* Speed lines on page */}
-        <div aria-hidden="true" style={{ position: "absolute", inset: "-20%",
-          background: `repeating-conic-gradient(${cur.color}08 0deg 1deg, transparent 1deg 8deg)`,
-          pointerEvents: "none" }} />
-        {/* Panel border inside */}
-        <div style={{ position: "absolute", inset: 4, border: `1px solid ${cur.color}33`, borderRadius: 2, pointerEvents: "none" }} />
-        {/* Content */}
-        <span style={{ fontFamily: "'Zen Dots',cursive", fontSize: 10, color: cur.color,
-          textTransform: "uppercase", letterSpacing: 2, textShadow: `0 0 6px ${cur.color}44`,
-          position: "relative", zIndex: 1 }}>{cur.label}</span>
-        <span style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 7, color: "rgba(255,255,255,0.4)",
-          marginTop: 3, textAlign: "center", lineHeight: 1.3, position: "relative", zIndex: 1 }}>
-          {cur.lines[0]}<br/>{cur.lines[1]}
-        </span>
-      </div>
-      {/* Corner fold indicator */}
-      <div style={{ position: "absolute", bottom: 0, right: 0, width: 14, height: 14, zIndex: 3,
-        background: `linear-gradient(135deg, transparent 50%, ${cur.color}33 50%)`,
-        borderRadius: "0 0 4px 0", pointerEvents: "none",
-        animation: "breathe 2s ease-in-out infinite" }} />
-      {/* "TURN" hint below */}
-      <p style={{ position: "absolute", bottom: -16, left: 0, right: 0, textAlign: "center",
-        fontFamily: "'Space Mono',monospace", fontSize: 7, color: "rgba(255,255,255,0.25)",
-        textTransform: "uppercase", letterSpacing: 2 }}>TURN →</p>
-    </div>
+    <>
+      {/* LEFT ARROW — Previous page */}
+      <button onClick={() => navigate("left")} disabled={isFirst}
+        style={{ ...btnBase, left: 16 }} title="Previous page">
+        <div style={arrowStyle("left", isFirst)}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#555" : "#fff"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </div>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, color: isFirst ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)",
+          textTransform: "uppercase", letterSpacing: 2 }}>TURN PAGE</span>
+      </button>
+
+      {/* RIGHT ARROW — Next page */}
+      <button onClick={() => navigate("right")} disabled={isLast}
+        style={{ ...btnBase, right: 16 }} title="Next page">
+        <div style={arrowStyle("right", isLast)}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#555" : "#fff"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </div>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, color: isLast ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)",
+          textTransform: "uppercase", letterSpacing: 2 }}>TURN PAGE</span>
+      </button>
+    </>
   );
 };
 
@@ -775,7 +759,7 @@ export default function MaxAnimeSoulSite() {
         {/* ═══════════════════════════════════════════════════════
             HERO SECTION — THE THREE GREATS
             ═══════════════════════════════════════════════════════ */}
-        <section ref={heroRef} style={{
+        <section id="section-hero" ref={heroRef} style={{
           minHeight: "100vh", position: "relative", overflow: "hidden",
           background: introPhase < 2
             ? "var(--sky-night)"
@@ -881,7 +865,7 @@ export default function MaxAnimeSoulSite() {
         {/* ═══════════════════════════════════════════════════════
             QUOTES STRIP
             ═══════════════════════════════════════════════════════ */}
-        <section style={{ background: "linear-gradient(135deg, #0a0030 0%, #0066ff22 25%, #4a1a8a44 50%, #e9456022 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
+        <section id="section-quotes" style={{ background: "linear-gradient(135deg, #0a0030 0%, #0066ff22 25%, #4a1a8a44 50%, #e9456022 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
           {quotes.map((q, i) => <QuoteCard key={i} q={q} i={i} />)}
         </section>
 
@@ -1046,7 +1030,7 @@ export default function MaxAnimeSoulSite() {
         {/* ═══════════════════════════════════════════════════════
             ULTRA SECRET BONUS SECTION — always rendered, shown via CSS
             ═══════════════════════════════════════════════════════ */}
-        <section style={{
+        <section id="section-ultra" style={{
           background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a35 30%, #0066ff20 50%, #e9456020 70%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite",
           padding: ultraMode ? "80px 20px" : 0, textAlign: "center",
@@ -1092,7 +1076,7 @@ export default function MaxAnimeSoulSite() {
         {/* ═══════════════════════════════════════════════════════
             FOOTER — ED SEQUENCE
             ═══════════════════════════════════════════════════════ */}
-        <section style={{
+        <section id="section-footer" style={{
           background: "linear-gradient(135deg, #0a0030 0%, #0066ff 25%, #4a1a8a 50%, #e94560 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 15s ease-in-out infinite", padding: "80px 20px", textAlign: "center", position: "relative",
         }}>
