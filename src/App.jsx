@@ -1086,7 +1086,6 @@ export default function MaxAnimeSoulSite() {
                       border: "1px solid rgba(255,215,61,0.2)" }}>{t}</span>
                   ))}
                 </div>
-              </div>
           </RevealDiv>
         </section>
 
