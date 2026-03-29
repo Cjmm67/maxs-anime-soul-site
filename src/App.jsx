@@ -290,11 +290,90 @@ const FooterCredits = () => {
   );
 };
 
+// ─── Legend Card — Wall of Legends character quote card ────
+const LegendCard = ({ legend, index }) => {
+  const [ref, vis] = useScrollReveal();
+  const [hov, setHov] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+
+  return (
+    <div ref={ref} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{
+        opacity: vis ? 1 : 0, transform: vis ? (hov ? "translateY(-4px)" : "none") : "translateY(30px)",
+        transition: `all 0.5s ease ${index * 0.08}s`,
+        background: "rgba(255,255,255,0.04)", borderRadius: 12, overflow: "hidden",
+        border: `1px solid ${hov ? legend.color + "66" : "rgba(255,255,255,0.08)"}`,
+        borderLeft: `4px solid ${legend.color}`,
+        boxShadow: hov ? `0 12px 30px rgba(0,0,0,0.4), 0 0 20px ${legend.color}15` : "0 4px 12px rgba(0,0,0,0.2)",
+      }}>
+      {/* Header: icon + name + anime */}
+      <div style={{ padding: "16px 18px 12px", display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 24 }}>{legend.icon}</span>
+        <div>
+          <h4 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 14, color: "#e8e8e8", textTransform: "uppercase",
+            letterSpacing: 2, margin: 0, lineHeight: 1.3 }}>{legend.name}</h4>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: legend.color, textTransform: "uppercase",
+            letterSpacing: 2, margin: 0 }}>{legend.anime}</p>
+        </div>
+      </div>
+
+      {/* Quote speech bubble */}
+      <div style={{ padding: "0 18px 12px" }}>
+        <div style={{ position: "relative", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 10, padding: "12px 14px" }}>
+          {/* Bubble tail */}
+          <div style={{ position: "absolute", top: -6, left: 20, width: 12, height: 12,
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+            borderRight: "none", borderBottom: "none", transform: "rotate(45deg)" }} />
+          <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: "#d0d0d8", lineHeight: 1.6,
+            fontStyle: "italic", margin: 0, position: "relative", zIndex: 1 }}>
+            "{legend.quote}"
+          </p>
+        </div>
+      </div>
+
+      {/* Footer: ability tag + view stats */}
+      <div style={{ padding: "4px 18px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: 2,
+          color: legend.color, border: `1px solid ${legend.color}55`, padding: "3px 10px", borderRadius: 4 }}>
+          {legend.ability}
+        </span>
+        <button onClick={(e) => { e.stopPropagation(); setShowStats(!showStats); }}
+          style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: 2,
+            color: legend.color, background: "none", border: "none", cursor: "pointer",
+            transition: "opacity 0.2s", opacity: hov ? 1 : 0.6 }}>
+          {showStats ? "HIDE ×" : "VIEW STATS →"}
+        </button>
+      </div>
+
+      {/* Expandable stats panel */}
+      {showStats && (
+        <div style={{ padding: "0 18px 16px", borderTop: `1px solid ${legend.color}22` }}>
+          <div style={{ paddingTop: 12 }}>
+            {legend.stats.map((s) => (
+              <div key={s.label} style={{ marginBottom: 6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Space Mono',monospace",
+                  fontSize: 9, textTransform: "uppercase", letterSpacing: 1, color: "#a0a0b0", marginBottom: 3 }}>
+                  <span>{s.label}</span><span style={{ color: legend.color }}>{s.value}</span>
+                </div>
+                <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${s.value}%`, background: legend.color, borderRadius: 2,
+                    transition: "width 0.8s ease" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Page Turner — Comic book arrows in both bottom corners ────
 const PageTurner = ({ sectionCount }) => {
   const [current, setCurrent] = useState(0);
   const [flipping, setFlipping] = useState(null); // 'left' | 'right' | null
-  const sectionIds = ["section-hero", "section-quotes", "section-1", "section-2", "section-3", "section-4", "section-ultra", "section-footer"];
+  const sectionIds = ["section-hero", "section-quotes", "section-legends", "section-1", "section-2", "section-3", "section-4", "section-ultra", "section-footer"];
   const total = sectionIds.length;
 
   const navigate = (dir) => {
@@ -466,6 +545,50 @@ export default function MaxAnimeSoulSite() {
       desc: "Tanjiro Kamado swings his blade with the fury of the sun and the grace of water. A breathtaking journey of a boy who fights demons to save his sister and protect humanity.",
       tags: ["Action", "Supernatural", "Historical"] },
   ];
+
+  // Wall of Legends data
+  const [customLegends, setCustomLegends] = useState([]);
+  const [newLegendName, setNewLegendName] = useState("");
+  const [newLegendAnime, setNewLegendAnime] = useState("");
+  const [newLegendQuote, setNewLegendQuote] = useState("");
+
+  const legends = [
+    { name: "Gojo Satoru", anime: "Jujutsu Kaisen", icon: "😎", color: "#0066ff",
+      quote: "Nah, I'd win.", ability: "SIX EYES",
+      stats: [{ label: "Power", value: 100 }, { label: "Speed", value: 95 }, { label: "Domain", value: 100 }] },
+    { name: "Rengoku Kyojuro", anime: "Demon Slayer", icon: "🔥", color: "#ff6b00",
+      quote: "Set your heart ablaze!", ability: "FLAME",
+      stats: [{ label: "Power", value: 92 }, { label: "Spirit", value: 100 }, { label: "Swordsmanship", value: 95 }] },
+    { name: "Monkey D. Luffy", anime: "One Piece", icon: "👒", color: "#e94560",
+      quote: "I'm gonna be King of the Pirates!", ability: "GUM-GUM",
+      stats: [{ label: "Power", value: 98 }, { label: "Will", value: 100 }, { label: "Freedom", value: 100 }] },
+    { name: "Naruto Uzumaki", anime: "Naruto", icon: "🍥", color: "#ff8c00",
+      quote: "I never go back on my word. That's my ninja way!", ability: "NINE-TAILS",
+      stats: [{ label: "Power", value: 95 }, { label: "Determination", value: 100 }, { label: "Talk-no-Jutsu", value: 100 }] },
+    { name: "Izuku Midoriya", anime: "My Hero Academia", icon: "💚", color: "#00c853",
+      quote: "I can't just stand by and watch someone die!", ability: "ONE FOR ALL",
+      stats: [{ label: "Power", value: 90 }, { label: "Heart", value: 100 }, { label: "Analysis", value: 95 }] },
+    { name: "Tanjiro Kamado", anime: "Demon Slayer", icon: "🌊", color: "#7c4dff",
+      quote: "No matter how many people you may lose, you have no choice but to go on living.", ability: "SUN BREATHING",
+      stats: [{ label: "Power", value: 88 }, { label: "Kindness", value: 100 }, { label: "Swordsmanship", value: 92 }] },
+    { name: "Gon Freecss", anime: "Hunter x Hunter", icon: "🎣", color: "#00bfa5",
+      quote: "I can't stand being on the sidelines!", ability: "ENHANCER",
+      stats: [{ label: "Power", value: 85 }, { label: "Potential", value: 100 }, { label: "Instinct", value: 92 }] },
+    { name: "Anya Forger", anime: "Spy x Family", icon: "🥜", color: "#ff80ab",
+      quote: "Waku waku!", ability: "TELEPATHY",
+      stats: [{ label: "Cuteness", value: 100 }, { label: "Telepathy", value: 90 }, { label: "Chaos", value: 95 }] },
+    ...customLegends,
+  ];
+
+  const addCustomLegend = () => {
+    if (!newLegendName.trim() || !newLegendQuote.trim()) return;
+    setCustomLegends(prev => [...prev, {
+      name: newLegendName.trim(), anime: newLegendAnime.trim() || "Unknown",
+      icon: "⭐", color: "#ffd93d", quote: newLegendQuote.trim(), ability: "LEGEND",
+      stats: [{ label: "Power", value: 85 }, { label: "Heart", value: 95 }, { label: "Legend", value: 100 }],
+    }]);
+    setNewLegendName(""); setNewLegendAnime(""); setNewLegendQuote("");
+  };
 
   const quotes = [
     { text: "Throughout the heavens and earth, I alone am the honoured one.", by: "Gojo Satoru", color: "#0066ff" },
@@ -844,7 +967,7 @@ export default function MaxAnimeSoulSite() {
 
               {/* Episode nav dots */}
               <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 36 }}>
-                {["Hero", "Stats", "Manga", "Quotes", "Secret"].map((s, i) => (
+                {["Hero", "Quotes", "Legends", "Stats", "Manga", "More", "Secret"].map((s, i) => (
                   <a key={s} href={`#section-${i}`} style={{ width: i === 0 ? 28 : 10, height: 10, borderRadius: 5, border: "none",
                     background: i === 0 ? "var(--glow-cool)" : "rgba(255,255,255,0.2)", display: "block", textDecoration: "none",
                     boxShadow: i === 0 ? "0 0 10px var(--glow-cool)" : "none", transition: "all 0.3s" }} />
@@ -867,6 +990,100 @@ export default function MaxAnimeSoulSite() {
             ═══════════════════════════════════════════════════════ */}
         <section id="section-quotes" style={{ background: "linear-gradient(135deg, #0a0030 0%, #0066ff22 25%, #4a1a8a44 50%, #e9456022 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
           {quotes.map((q, i) => <QuoteCard key={i} q={q} i={i} />)}
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
+            WALL OF LEGENDS — Famous Anime Character Quotes
+            ═══════════════════════════════════════════════════════ */}
+        <section id="section-legends" style={{
+          background: "linear-gradient(135deg, #0a0030 0%, #0066ff12 25%, #4a1a8a25 50%, #e9456015 75%, #0a0030 100%)",
+          backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
+          padding: "80px 20px",
+        }}>
+          {/* Title */}
+          <RevealDiv style={{ textAlign: "center", marginBottom: 16 }}>
+            {(vis) => (<>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#a0a0b0", textTransform: "uppercase", letterSpacing: 4, marginBottom: 6 }}>Chapter 02</p>
+              <h2 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(28px,7vw,52px)", color: "#e8e8e8", textTransform: "uppercase",
+                letterSpacing: 4, textShadow: "0 0 12px rgba(101,31,255,0.3)", marginBottom: 12 }}>WALL OF LEGENDS</h2>
+              <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, color: "#a0a0b0", maxWidth: 500, margin: "0 auto" }}>
+                The words that shaped heroes. Click any legend to see their full stats.
+              </p>
+            </>)}
+          </RevealDiv>
+
+          {/* Dark banner */}
+          <RevealDiv style={{ maxWidth: 960, margin: "24px auto 36px", background: "rgba(0,0,0,0.4)", borderRadius: 12,
+            padding: "28px 32px", position: "relative", overflow: "hidden" }}>
+            {(vis) => (<>
+              {/* Speed lines */}
+              <div aria-hidden="true" style={{ position: "absolute", inset: "-20%",
+                background: "repeating-linear-gradient(-35deg, transparent 0px, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px)",
+                pointerEvents: "none" }} />
+              {/* LEGENDS! SFX */}
+              <span aria-hidden="true" style={{ position: "absolute", top: 8, left: 16,
+                fontFamily: "'Bungee Shade',cursive", fontSize: 28, color: "#00e676", opacity: 0.7,
+                transform: "rotate(-5deg)", pointerEvents: "none" }}>LEGENDS!</span>
+              {/* POWER! SFX */}
+              <span aria-hidden="true" style={{ position: "absolute", bottom: 8, right: 16,
+                fontFamily: "'Bungee Shade',cursive", fontSize: 24, color: "#ffd93d", opacity: 0.6,
+                transform: "rotate(3deg)", pointerEvents: "none" }}>POWER!</span>
+              <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+                <h3 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(18px,4vw,28px)", color: "#e8e8e8",
+                  textTransform: "uppercase", letterSpacing: 3, marginBottom: 8 }}>EVERY HERO HAS A BATTLE CRY</h3>
+                <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 14, color: "#a0a0b0" }}>
+                  These are the quotes Max lives by. <span style={{ color: "#00e676" }}>Add your own legends below!</span>
+                </p>
+              </div>
+            </>)}
+          </RevealDiv>
+
+          {/* Legend cards grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20, maxWidth: 960, margin: "0 auto 40px" }}>
+            {legends.map((leg, i) => <LegendCard key={leg.name + i} legend={leg} index={i} />)}
+          </div>
+
+          {/* Add Your Own Legend */}
+          <RevealDiv style={{ maxWidth: 960, margin: "0 auto 32px" }}>
+            {(vis) => (
+              <div style={{ border: "2px dashed rgba(255,255,255,0.15)", borderRadius: 12, padding: 32, textAlign: "center" }}>
+                <h3 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(16px,3.5vw,24px)", color: "#00e676",
+                  textTransform: "uppercase", letterSpacing: 3, marginBottom: 8 }}>+ ADD YOUR OWN LEGEND</h3>
+                <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: "#a0a0b0", marginBottom: 20 }}>
+                  Add any anime character and their iconic quote to the wall
+                </p>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", maxWidth: 600, margin: "0 auto" }}>
+                  <input value={newLegendName} onChange={(e) => setNewLegendName(e.target.value)} placeholder="Character name"
+                    style={{ flex: "1 1 140px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 8, color: "#e8e8e8", fontFamily: "'Outfit',sans-serif", fontSize: 13, padding: "10px 14px", outline: "none" }} />
+                  <input value={newLegendAnime} onChange={(e) => setNewLegendAnime(e.target.value)} placeholder="Anime series"
+                    style={{ flex: "1 1 140px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 8, color: "#e8e8e8", fontFamily: "'Outfit',sans-serif", fontSize: 13, padding: "10px 14px", outline: "none" }} />
+                  <input value={newLegendQuote} onChange={(e) => setNewLegendQuote(e.target.value)} placeholder="Their iconic quote..."
+                    onKeyDown={(e) => e.key === "Enter" && addCustomLegend()}
+                    style={{ flex: "2 1 280px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 8, color: "#e8e8e8", fontFamily: "'Outfit',sans-serif", fontSize: 13, padding: "10px 14px", outline: "none" }} />
+                  <button onClick={addCustomLegend}
+                    style={{ padding: "10px 20px", fontFamily: "'Space Mono',monospace", fontSize: 11, fontWeight: 700,
+                      textTransform: "uppercase", letterSpacing: 2, color: "#0a0030", background: "#00e676",
+                      border: "none", borderRadius: 8, cursor: "pointer", transition: "all 0.3s" }}>ADD</button>
+                </div>
+              </div>
+            )}
+          </RevealDiv>
+
+          {/* Legend count + next section link */}
+          <RevealDiv style={{ maxWidth: 960, margin: "0 auto", textAlign: "center",
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "20px 24px" }}>
+            {(vis) => (<>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#a0a0b0", letterSpacing: 2, marginBottom: 6 }}>
+                {legends.length} LEGENDS ON THE WALL...
+              </p>
+              <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: 16, color: "#00e676", textTransform: "uppercase", letterSpacing: 3 }}>
+                NEXT: THE THREE GREATS →
+              </p>
+            </>)}
+          </RevealDiv>
         </section>
 
         {/* ═══════════════════════════════════════════════════════
