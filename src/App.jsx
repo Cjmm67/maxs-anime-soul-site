@@ -369,69 +369,155 @@ const LegendCard = ({ legend, index }) => {
   );
 };
 
+// ─── Comic Page wrapper — each section is a "page" ────
+const ComicPage = ({ pageIndex, currentPage, turnDir, children }) => {
+  const isActive = pageIndex === currentPage;
+  const isPrev = pageIndex < currentPage;
+  const isNext = pageIndex > currentPage;
+  const isTurning = turnDir !== null;
+
+  // Determine animation state
+  let transform = "translateX(100%)"; // default: off to right
+  let opacity = 0;
+  let zIndex = 1;
+
+  if (isActive) {
+    transform = "translateX(0) rotateY(0deg)";
+    opacity = 1;
+    zIndex = 3;
+    if (isTurning) {
+      // Active page entering
+      transform = turnDir === "right" ? "translateX(0) rotateY(0deg)" : "translateX(0) rotateY(0deg)";
+    }
+  } else if (isPrev) {
+    transform = "translateX(-30%) rotateY(15deg)";
+    opacity = 0;
+    zIndex = 1;
+  } else {
+    transform = "translateX(30%) rotateY(-15deg)";
+    opacity = 0;
+    zIndex = 1;
+  }
+
+  return (
+    <div style={{
+      position: "absolute", inset: 0,
+      transform, opacity, zIndex,
+      transition: isTurning ? "none" : "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s ease",
+      transformOrigin: turnDir === "right" ? "left center" : "right center",
+      perspective: "1200px",
+      overflowY: "auto", overflowX: "hidden",
+      animation: isActive && isTurning
+        ? (turnDir === "right" ? "comicPageInRight 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards" : "comicPageInLeft 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards")
+        : "none",
+      willChange: "transform, opacity",
+    }}>
+      {children}
+    </div>
+  );
+};
+
 // ─── Page Turner — Comic book arrows in both bottom corners ────
-const PageTurner = ({ sectionCount }) => {
-  const [current, setCurrent] = useState(0);
-  const [flipping, setFlipping] = useState(null); // 'left' | 'right' | null
-  const sectionIds = ["section-hero", "section-quotes", "section-legends", "section-1", "section-2", "section-3", "section-4", "section-ultra", "section-footer"];
-  const total = sectionIds.length;
+const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
+  const [flipping, setFlipping] = useState(null);
 
   const navigate = (dir) => {
     if (flipping) return;
-    const next = dir === "right" ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
-    if (next === current) return;
+    const next = dir === "right" ? Math.min(currentPage + 1, totalPages - 1) : Math.max(currentPage - 1, 0);
+    if (next === currentPage) return;
     setFlipping(dir);
-    setTimeout(() => {
-      setCurrent(next);
-      setFlipping(null);
-      const el = document.getElementById(sectionIds[next]);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 400);
+    onNavigate(next, dir);
+    setTimeout(() => setFlipping(null), 700);
   };
 
-  const btnBase = {
-    position: "fixed", bottom: 16, zIndex: 70, cursor: "pointer",
-    display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+  const isFirst = currentPage === 0;
+  const isLast = currentPage === totalPages - 1;
+
+  const cornerStyle = (side) => ({
+    position: "fixed", bottom: 0, [side]: 0, zIndex: 80, cursor: "pointer",
+    width: 80, height: 80,
     background: "none", border: "none", padding: 0,
-  };
-
-  const arrowStyle = (dir, disabled) => ({
-    width: 48, height: 48, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
-    background: disabled ? "rgba(255,255,255,0.03)" : "linear-gradient(135deg, #e94560, #7c4dff)",
-    border: disabled ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(255,255,255,0.2)",
-    boxShadow: disabled ? "none" : "0 4px 20px rgba(233,69,96,0.3), 0 0 15px rgba(124,77,255,0.2)",
-    transition: "all 0.3s ease",
-    transform: flipping === dir ? (dir === "right" ? "perspective(600px) rotateY(-25deg)" : "perspective(600px) rotateY(25deg)") : "none",
-    opacity: disabled ? 0.3 : 1,
+    display: "flex", alignItems: "flex-end", justifyContent: side === "left" ? "flex-start" : "flex-end",
   });
 
-  const isFirst = current === 0;
-  const isLast = current === total - 1;
+  const foldStyle = (side, disabled) => ({
+    width: 0, height: 0,
+    borderStyle: "solid",
+    ...(side === "right"
+      ? { borderWidth: "0 0 72px 72px", borderColor: `transparent transparent ${disabled ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg, #7c4dff, #4a1a8a)"} transparent` }
+      : { borderWidth: "72px 0 0 72px", borderColor: `transparent transparent transparent ${disabled ? "rgba(255,255,255,0.05)" : "#7c4dff"}` }
+    ),
+    transition: "all 0.3s ease",
+    filter: flipping === side ? "brightness(1.4)" : "brightness(1)",
+  });
 
   return (
     <>
-      {/* LEFT ARROW — Previous page */}
-      <button onClick={() => navigate("left")} disabled={isFirst}
-        style={{ ...btnBase, left: 16 }} title="Previous page">
-        <div style={arrowStyle("left", isFirst)}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#555" : "#fff"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
+      {/* LEFT — Previous */}
+      <button onClick={() => navigate("left")} disabled={isFirst} style={cornerStyle("left")} title="Previous page">
+        <div style={{ position: "relative", width: 72, height: 72, overflow: "hidden" }}>
+          {/* Folded corner triangle */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0,
+            width: 0, height: 0, borderStyle: "solid",
+            borderWidth: "0 72px 72px 0",
+            borderColor: `transparent ${isFirst ? "rgba(255,255,255,0.04)" : "rgba(74,26,138,0.8)"} transparent transparent`,
+            transition: "all 0.3s", filter: flipping === "left" ? "brightness(1.5)" : "brightness(1)",
+            transform: flipping === "left" ? "scale(1.15)" : "scale(1)",
+          }} />
+          {/* Arrow icon */}
+          <div style={{ position: "absolute", bottom: 10, left: 6, transform: "rotate(0deg)" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#333" : "#e8e8e8"} strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </div>
+          {/* Label */}
+          <span style={{ position: "absolute", bottom: 2, left: 22, fontFamily: "'Space Mono',monospace",
+            fontSize: 6, color: isFirst ? "#333" : "#c0c0d0", textTransform: "uppercase", letterSpacing: 1,
+            transform: "rotate(45deg)", transformOrigin: "left bottom" }}>PREV</span>
         </div>
-        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, color: isFirst ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)",
-          textTransform: "uppercase", letterSpacing: 2 }}>TURN PAGE</span>
       </button>
 
-      {/* RIGHT ARROW — Next page */}
-      <button onClick={() => navigate("right")} disabled={isLast}
-        style={{ ...btnBase, right: 16 }} title="Next page">
-        <div style={arrowStyle("right", isLast)}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#555" : "#fff"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
+      {/* Page counter — bottom centre */}
+      <div style={{ position: "fixed", bottom: 12, left: "50%", transform: "translateX(-50%)", zIndex: 80,
+        display: "flex", alignItems: "center", gap: 8,
+        background: "rgba(10,0,48,0.7)", backdropFilter: "blur(8px)", padding: "6px 14px", borderRadius: 20,
+        border: "1px solid rgba(255,255,255,0.1)" }}>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <div key={i} onClick={() => { if (i !== currentPage) onNavigate(i, i > currentPage ? "right" : "left"); }}
+            style={{ width: i === currentPage ? 20 : 6, height: 6, borderRadius: 3, cursor: "pointer",
+              background: i === currentPage ? "#7c4dff" : "rgba(255,255,255,0.2)",
+              boxShadow: i === currentPage ? "0 0 8px #7c4dff" : "none",
+              transition: "all 0.3s" }} />
+        ))}
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: "#a0a0b0", marginLeft: 4 }}>
+          {currentPage + 1} / {totalPages}
+        </span>
+      </div>
+
+      {/* RIGHT — Next */}
+      <button onClick={() => navigate("right")} disabled={isLast} style={cornerStyle("right")} title="Next page">
+        <div style={{ position: "relative", width: 72, height: 72, overflow: "hidden" }}>
+          {/* Folded corner triangle */}
+          <div style={{
+            position: "absolute", bottom: 0, right: 0,
+            width: 0, height: 0, borderStyle: "solid",
+            borderWidth: "72px 0 0 72px",
+            borderColor: `transparent transparent transparent ${isLast ? "rgba(255,255,255,0.04)" : "rgba(74,26,138,0.8)"}`,
+            transition: "all 0.3s", filter: flipping === "right" ? "brightness(1.5)" : "brightness(1)",
+            transform: flipping === "right" ? "scale(1.15)" : "scale(1)",
+          }} />
+          {/* Arrow icon */}
+          <div style={{ position: "absolute", bottom: 10, right: 6 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#333" : "#e8e8e8"} strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+          {/* Label */}
+          <span style={{ position: "absolute", bottom: 2, right: 22, fontFamily: "'Space Mono',monospace",
+            fontSize: 6, color: isLast ? "#333" : "#c0c0d0", textTransform: "uppercase", letterSpacing: 1,
+            transform: "rotate(-45deg)", transformOrigin: "right bottom" }}>NEXT</span>
         </div>
-        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, color: isLast ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)",
-          textTransform: "uppercase", letterSpacing: 2 }}>TURN PAGE</span>
       </button>
     </>
   );
@@ -452,8 +538,17 @@ export default function MaxAnimeSoulSite() {
   const [activeManga, setActiveManga] = useState(null);
   const [pageTurn, setPageTurn] = useState(false);
   const [codeMessage, setCodeMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [turnDir, setTurnDir] = useState(null);
   const heroRef = useRef(null);
   const konamiSeq = useRef([]);
+  const totalPages = 7;
+
+  const handlePageNav = useCallback((nextPage, dir) => {
+    setTurnDir(dir);
+    setCurrentPage(nextPage);
+    setTimeout(() => setTurnDir(null), 750);
+  }, []);
 
   const introLine = "The power of three legends begins here...";
 
@@ -613,7 +708,28 @@ export default function MaxAnimeSoulSite() {
         }
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{background:#0a0030;color:var(--text-primary);font-family:'Outfit',sans-serif;overflow-x:hidden}
+        body{background:#0a0030;color:var(--text-primary);font-family:'Outfit',sans-serif;overflow:hidden;height:100vh}
+
+        @keyframes comicPageInRight{
+          0%{transform:translateX(50%) rotateY(-12deg);opacity:0}
+          40%{opacity:1}
+          100%{transform:translateX(0) rotateY(0deg);opacity:1}
+        }
+        @keyframes comicPageInLeft{
+          0%{transform:translateX(-50%) rotateY(12deg);opacity:0}
+          40%{opacity:1}
+          100%{transform:translateX(0) rotateY(0deg);opacity:1}
+        }
+        @keyframes comicPageOutRight{
+          0%{transform:translateX(0) rotateY(0deg);opacity:1}
+          60%{opacity:0.5}
+          100%{transform:translateX(50%) rotateY(-15deg);opacity:0}
+        }
+        @keyframes comicPageOutLeft{
+          0%{transform:translateX(0) rotateY(0deg);opacity:1}
+          60%{opacity:0.5}
+          100%{transform:translateX(-50%) rotateY(15deg);opacity:0}
+        }
 
         @keyframes particleRise{0%{transform:translateY(110vh) translateX(0) rotate(0deg);opacity:1}80%{opacity:.6}100%{transform:translateY(-20px) translateX(var(--drift,30px)) rotate(var(--rot-end,360deg));opacity:0}}
         @keyframes particleFall{0%{transform:translateY(-20px) translateX(0) rotate(0deg)}100%{transform:translateY(110vh) translateX(var(--drift,30px)) rotate(var(--rot-end,360deg))}}
@@ -877,16 +993,17 @@ export default function MaxAnimeSoulSite() {
           animation: "konamiBorder 3s ease-in-out infinite" }} />
       )}
 
-      <main style={{ position: "relative", zIndex: 1 }}>
+      <main style={{ position: "relative", zIndex: 1, height: "100vh", overflow: "hidden", perspective: "1200px" }}>
 
         {/* ═══════════════════════════════════════════════════════
             HERO SECTION — THE THREE GREATS
             ═══════════════════════════════════════════════════════ */}
+        <ComicPage pageIndex={0} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-hero" ref={heroRef} style={{
           minHeight: "100vh", position: "relative", overflow: "hidden",
           background: introPhase < 2
             ? "var(--sky-night)"
-            : "linear-gradient(135deg, #0a0030 0%, #0066ff 25%, #4a1a8a 50%, #e94560 75%, #1a0a2e 100%)",
+            : "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: introPhase >= 2 ? "gradientShift 12s ease-in-out infinite" : "none",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           transition: "background 1.5s ease",
@@ -984,19 +1101,25 @@ export default function MaxAnimeSoulSite() {
             </div>
           )}
         </section>
+        </ComicPage>
 
         {/* ═══════════════════════════════════════════════════════
             QUOTES STRIP
             ═══════════════════════════════════════════════════════ */}
-        <section id="section-quotes" style={{ background: "linear-gradient(135deg, #0a0030 0%, #0066ff22 25%, #4a1a8a44 50%, #e9456022 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
+        <ComicPage pageIndex={1} currentPage={currentPage} turnDir={turnDir}>
+        <section id="section-quotes" style={{
+          minHeight: "100vh", background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite", padding: "60px 20px" }}>
           {quotes.map((q, i) => <QuoteCard key={i} q={q} i={i} />)}
         </section>
+        </ComicPage>
 
         {/* ═══════════════════════════════════════════════════════
             WALL OF LEGENDS — Famous Anime Character Quotes
             ═══════════════════════════════════════════════════════ */}
+        <ComicPage pageIndex={2} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-legends" style={{
-          background: "linear-gradient(135deg, #0a0030 0%, #0066ff12 25%, #4a1a8a25 50%, #e9456015 75%, #0a0030 100%)",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
           padding: "80px 20px",
         }}>
@@ -1085,12 +1208,15 @@ export default function MaxAnimeSoulSite() {
             </>)}
           </RevealDiv>
         </section>
+        </ComicPage>
 
         {/* ═══════════════════════════════════════════════════════
             CHARACTER STATS — THE THREE GREATS
             ═══════════════════════════════════════════════════════ */}
+        <ComicPage pageIndex={3} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-1" style={{
-          background: "linear-gradient(135deg, #0a0030 0%, #0066ff18 30%, #4a1a8a33 50%, #e9456018 70%, #0a0030 100%)",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 25s ease-in-out infinite",
           padding: "80px 20px",
         }}>
@@ -1111,12 +1237,15 @@ export default function MaxAnimeSoulSite() {
             ))}
           </div>
         </section>
+        </ComicPage>
 
         {/* ═══════════════════════════════════════════════════════
             MANGA PAGES — DISCOVER THE LEGENDS
             ═══════════════════════════════════════════════════════ */}
+        <ComicPage pageIndex={4} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-2" style={{
-          background: "linear-gradient(135deg, #0a0030 0%, #0066ff15 20%, #4a1a8a30 45%, #e9456020 70%, #0a0030 100%)",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 22s ease-in-out infinite",
           padding: "80px 20px", position: "relative",
         }}>
@@ -1160,11 +1289,14 @@ export default function MaxAnimeSoulSite() {
             </div>
           )}
         </section>
+        </ComicPage>
+        <ComicPage pageIndex={5} currentPage={currentPage} turnDir={turnDir}>
 
         {/* ═══════════════════════════════════════════════════════
             SECOND QUOTES — More Inspiration
             ═══════════════════════════════════════════════════════ */}
-        <section id="section-3" style={{ background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a30 40%, #0066ff18 60%, #e9456015 80%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 18s ease-in-out infinite", padding: "70px 20px" }}>
+        <section id="section-3" style={{
+          minHeight: "100vh", background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 18s ease-in-out infinite", padding: "70px 20px" }}>
           <RevealDiv style={{ textAlign: "center", maxWidth: 600, margin: "0 auto" }}>
             <p style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(16px,3.5vw,26px)", color: "#ffd93d",
               textTransform: "uppercase", letterSpacing: 3, lineHeight: 1.8,
@@ -1182,7 +1314,8 @@ export default function MaxAnimeSoulSite() {
             SECRET ULTRA SUPER CODE
             ═══════════════════════════════════════════════════════ */}
         <section id="section-4" style={{
-          background: "linear-gradient(135deg, #0a0030 0%, #0066ff15 25%, #4a1a8a30 50%, #e9456018 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
         }}>
           {/* Subtle ? hint */}
           <RevealDiv style={{ maxWidth: 420, margin: "0 auto", textAlign: "center" }}>
@@ -1248,7 +1381,8 @@ export default function MaxAnimeSoulSite() {
             ULTRA SECRET BONUS SECTION — always rendered, shown via CSS
             ═══════════════════════════════════════════════════════ */}
         <section id="section-ultra" style={{
-          background: "linear-gradient(135deg, #0a0030 0%, #4a1a8a35 30%, #0066ff20 50%, #e9456020 70%, #0a0030 100%)",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 20s ease-in-out infinite",
           padding: ultraMode ? "80px 20px" : 0, textAlign: "center",
           maxHeight: ultraMode ? "2000px" : 0, overflow: "hidden",
@@ -1289,12 +1423,15 @@ export default function MaxAnimeSoulSite() {
                 </div>
           </RevealDiv>
         </section>
+        </ComicPage>
 
         {/* ═══════════════════════════════════════════════════════
             FOOTER — ED SEQUENCE
             ═══════════════════════════════════════════════════════ */}
+        <ComicPage pageIndex={6} currentPage={currentPage} turnDir={turnDir}>
         <section id="section-footer" style={{
-          background: "linear-gradient(135deg, #0a0030 0%, #0066ff 25%, #4a1a8a 50%, #e94560 75%, #0a0030 100%)",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0a0030 0%, #0c0050 25%, #12006a 50%, #0c0050 75%, #0a0030 100%)",
           backgroundSize: "300% 300%", animation: "gradientShift 15s ease-in-out infinite", padding: "80px 20px", textAlign: "center", position: "relative",
         }}>
           {/* Stars */}
@@ -1308,11 +1445,12 @@ export default function MaxAnimeSoulSite() {
 
           <FooterCredits />
         </section>
+        </ComicPage>
 
       </main>
 
       {/* Page Turner — fixed bottom-right comic flip */}
-      <PageTurner />
+      <PageTurner currentPage={currentPage} totalPages={totalPages} onNavigate={handlePageNav} />
     </>
   );
 }
