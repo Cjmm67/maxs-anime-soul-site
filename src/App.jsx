@@ -545,6 +545,7 @@ export default function MaxAnimeSoulSite() {
   const [currentPage, setCurrentPage] = useState(0);
   const [turnDir, setTurnDir] = useState(null);
   const heroRef = useRef(null);
+  const videoIframeRef = useRef(null);
   const konamiSeq = useRef([]);
   const totalPages = 7;
 
@@ -570,27 +571,36 @@ export default function MaxAnimeSoulSite() {
     setTimeout(() => { setVideoPlaying(false); setVideoFading(false); }, 1200);
   }, [videoFading]);
 
-  // Listen for Cloudflare Stream video end via postMessage
+  // Load Cloudflare Stream SDK and listen for video end
   useEffect(() => {
     if (!videoPlaying) return;
-    const handleMessage = (e) => {
+    let player = null;
+    const initPlayer = () => {
+      const iframe = videoIframeRef.current;
+      if (!iframe || !window.Stream) return;
       try {
-        if (typeof e.data === "string") {
-          const d = JSON.parse(e.data);
-          if (d.type === "ended" || d.event === "ended") endVideoOpening();
-        }
+        player = window.Stream(iframe);
+        player.addEventListener("ended", () => endVideoOpening());
       } catch {}
     };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    // Load the SDK if not already present
+    if (!window.Stream) {
+      const script = document.createElement("script");
+      script.src = "https://embed.cloudflarestream.com/embed/sdk.latest.js";
+      script.onload = () => setTimeout(initPlayer, 200);
+      document.head.appendChild(script);
+    } else {
+      setTimeout(initPlayer, 200);
+    }
+    return () => { if (player) try { player.removeEventListener("ended", endVideoOpening); } catch {} };
   }, [videoPlaying, endVideoOpening]);
 
   // Intro sequence — starts after video ends
   useEffect(() => {
-    if (videoPlaying) return;
+    if (videoPlaying || launchPage) return;
     const t1 = setTimeout(() => setIntroPhase(1), 1200);
     return () => clearTimeout(t1);
-  }, [videoPlaying]);
+  }, [videoPlaying, launchPage]);
 
   useEffect(() => {
     if (introPhase !== 1) return;
@@ -919,6 +929,7 @@ export default function MaxAnimeSoulSite() {
           animation: videoFading ? "videoFadeOut 1.2s ease-in forwards" : "none",
         }}>
           <iframe
+            ref={videoIframeRef}
             src="https://customer-7abpkonneyc0v28d.cloudflarestream.com/f61aa025af91f6951f5e2ead764b6e85/iframe?autoplay=true&preload=auto&poster=https%3A%2F%2Fcustomer-7abpkonneyc0v28d.cloudflarestream.com%2Ff61aa025af91f6951f5e2ead764b6e85%2Fthumbnails%2Fthumbnail.jpg"
             style={{ width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 }}
             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
