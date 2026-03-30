@@ -809,7 +809,7 @@ export default function MaxAnimeSoulSite() {
           animation: videoFading ? "videoFadeOut 1.2s ease-in forwards" : "none",
         }}>
           <iframe
-            src="https://customer-7abpkonneyc0v28d.cloudflarestream.com/f61aa025af91f6951f5e2ead764b6e85/iframe?autoplay=true&preload=auto&poster=https%3A%2F%2Fcustomer-7abpkonneyc0v28d.cloudflarestream.com%2Ff61aa025af91f6951f5e2ead764b6e85%2Fthumbnails%2Fthumbnail.jpg"
+            src="https://customer-7abpkonneyc0v28d.cloudflarestream.com/f61aa025af91f6951f5e2ead764b6e85/iframe?autoplay=true&muted=true&preload=auto&poster=https%3A%2F%2Fcustomer-7abpkonneyc0v28d.cloudflarestream.com%2Ff61aa025af91f6951f5e2ead764b6e85%2Fthumbnails%2Fthumbnail.jpg"
             style={{ width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 }}
             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
