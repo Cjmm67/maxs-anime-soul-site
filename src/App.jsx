@@ -524,6 +524,8 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
 };
 
 export default function MaxAnimeSoulSite() {
+  const [videoPlaying, setVideoPlaying] = useState(true);
+  const [videoFading, setVideoFading] = useState(false);
   const [introPhase, setIntroPhase] = useState(0); // 0=dark, 1=typing, 2=revealed
   const [typeText, setTypeText] = useState("");
   const [ultraMode, setUltraMode] = useState(false);
@@ -552,11 +554,34 @@ export default function MaxAnimeSoulSite() {
 
   const introLine = "The power of three legends begins here...";
 
-  // Intro sequence
+  // Skip/end video handler
+  const endVideoOpening = useCallback(() => {
+    if (videoFading) return;
+    setVideoFading(true);
+    setTimeout(() => { setVideoPlaying(false); setVideoFading(false); }, 1200);
+  }, [videoFading]);
+
+  // Listen for Cloudflare Stream video end via postMessage
   useEffect(() => {
+    if (!videoPlaying) return;
+    const handleMessage = (e) => {
+      try {
+        if (typeof e.data === "string") {
+          const d = JSON.parse(e.data);
+          if (d.type === "ended" || d.event === "ended") endVideoOpening();
+        }
+      } catch {}
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [videoPlaying, endVideoOpening]);
+
+  // Intro sequence — starts after video ends
+  useEffect(() => {
+    if (videoPlaying) return;
     const t1 = setTimeout(() => setIntroPhase(1), 1200);
     return () => clearTimeout(t1);
-  }, []);
+  }, [videoPlaying]);
 
   useEffect(() => {
     if (introPhase !== 1) return;
@@ -768,11 +793,45 @@ export default function MaxAnimeSoulSite() {
         @keyframes konamiStar{0%{transform:translate(var(--sx,0),var(--sy,0)) scale(0) rotate(0deg);opacity:0}20%{opacity:1;transform:translate(var(--sx,0),var(--sy,0)) scale(1.5) rotate(180deg)}100%{opacity:0;transform:translate(calc(var(--sx,0) * 3),calc(var(--sy,0) * 3)) scale(0) rotate(720deg)}}
         @keyframes konamiBorder{0%,100%{box-shadow:inset 0 0 30px rgba(255,0,128,.15)}33%{box-shadow:inset 0 0 50px rgba(0,255,128,.2)}66%{box-shadow:inset 0 0 50px rgba(128,0,255,.2)}}
 
+        @keyframes videoFadeOut{0%{opacity:1}100%{opacity:0}}
+        @keyframes skipPulse{0%,100%{opacity:.5;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+
         .page-turning{animation:pageTurnOut .25s ease-in forwards}
         .page-turned-in{animation:pageTurnIn .25s ease-out forwards}
 
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.3s!important}}
       `}</style>
+
+      {/* ═══ VIDEO CINEMATIC OPENING ═══ */}
+      {videoPlaying && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 99999, background: "#000",
+          animation: videoFading ? "videoFadeOut 1.2s ease-in forwards" : "none",
+        }}>
+          <iframe
+            src="https://customer-7abpkonneyc0v28d.cloudflarestream.com/f61aa025af91f6951f5e2ead764b6e85/iframe?autoplay=true&preload=auto&poster=https%3A%2F%2Fcustomer-7abpkonneyc0v28d.cloudflarestream.com%2Ff61aa025af91f6951f5e2ead764b6e85%2Fthumbnails%2Fthumbnail.jpg"
+            style={{ width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 }}
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+          />
+          {/* Skip Intro — bottom right */}
+          <button
+            onClick={endVideoOpening}
+            style={{
+              position: "absolute", bottom: "clamp(24px,5vh,48px)", right: "clamp(24px,4vw,48px)", zIndex: 3,
+              fontFamily: "'Space Mono',monospace", fontSize: "clamp(11px,1.4vw,14px)", color: "#a0a0b0",
+              background: "rgba(10,5,20,0.75)", border: "1px solid rgba(160,160,176,0.3)",
+              borderRadius: 8, padding: "10px 24px", cursor: "pointer",
+              textTransform: "uppercase", letterSpacing: 2, backdropFilter: "blur(8px)",
+              transition: "all 0.3s ease", animation: "skipPulse 2.5s ease-in-out infinite",
+            }}
+            onMouseEnter={e => { e.target.style.color = "#ffd93d"; e.target.style.borderColor = "#ffd93d"; e.target.style.boxShadow = "0 0 20px rgba(255,215,61,0.3)"; }}
+            onMouseLeave={e => { e.target.style.color = "#a0a0b0"; e.target.style.borderColor = "rgba(160,160,176,0.3)"; e.target.style.boxShadow = "none"; }}
+          >
+            Skip Intro →
+          </button>
+        </div>
+      )}
 
       {/* Particles */}
       <ParticleSystem
