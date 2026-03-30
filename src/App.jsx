@@ -474,7 +474,7 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
           {/* Label */}
           <span style={{ position: "absolute", bottom: 2, left: 22, fontFamily: "'Space Mono',monospace",
             fontSize: 6, color: isFirst ? "#777" : "#e8e8f0", textTransform: "uppercase", letterSpacing: 1,
-            transform: "rotate(45deg)", transformOrigin: "left bottom" }}>PREV</span>
+            transform: "rotate(45deg)", transformOrigin: "left bottom" }}>TURN</span>
         </div>
       </button>
 
@@ -516,7 +516,7 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
           {/* Label */}
           <span style={{ position: "absolute", bottom: 2, right: 22, fontFamily: "'Space Mono',monospace",
             fontSize: 6, color: isLast ? "#777" : "#e8e8f0", textTransform: "uppercase", letterSpacing: 1,
-            transform: "rotate(-45deg)", transformOrigin: "right bottom" }}>NEXT</span>
+            transform: "rotate(-45deg)", transformOrigin: "right bottom" }}>TURN</span>
         </div>
       </button>
     </>
