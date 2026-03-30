@@ -1623,6 +1623,6 @@ export default function MaxAnimeSoulSite() {
 
       {/* Page Turner — fixed bottom-right comic flip */}
       <PageTurner currentPage={currentPage} totalPages={totalPages} onNavigate={handlePageNav} />
-    </>
+    <GojoChat /></>
   );
 }
