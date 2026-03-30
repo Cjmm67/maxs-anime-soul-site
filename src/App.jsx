@@ -524,7 +524,9 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
 };
 
 export default function MaxAnimeSoulSite() {
-  const [videoPlaying, setVideoPlaying] = useState(true);
+  const [launchPage, setLaunchPage] = useState(true);
+  const [launchFading, setLaunchFading] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const [videoFading, setVideoFading] = useState(false);
   const [introPhase, setIntroPhase] = useState(0); // 0=dark, 1=typing, 2=revealed
   const [typeText, setTypeText] = useState("");
@@ -553,6 +555,13 @@ export default function MaxAnimeSoulSite() {
   }, []);
 
   const introLine = "The power of three legends begins here...";
+
+  // Launch button — user click enables audio autoplay
+  const launchSite = useCallback(() => {
+    if (launchFading) return;
+    setLaunchFading(true);
+    setTimeout(() => { setLaunchPage(false); setLaunchFading(false); setVideoPlaying(true); }, 1000);
+  }, [launchFading]);
 
   // Skip/end video handler
   const endVideoOpening = useCallback(() => {
@@ -795,6 +804,12 @@ export default function MaxAnimeSoulSite() {
 
         @keyframes videoFadeOut{0%{opacity:1}100%{opacity:0}}
         @keyframes skipPulse{0%,100%{opacity:.5;transform:translateX(0)}50%{opacity:1;transform:translateX(4px)}}
+        @keyframes launchFadeOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
+        @keyframes launchFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        @keyframes launchGlow{0%,100%{box-shadow:0 0 20px rgba(124,77,255,0.3),0 0 40px rgba(124,77,255,0.1)}50%{box-shadow:0 0 35px rgba(255,215,61,0.5),0 0 70px rgba(124,77,255,0.25)}}
+        @keyframes launchOrbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes launchTextGlow{0%,100%{text-shadow:0 0 8px rgba(255,215,61,0.4),0 0 20px rgba(124,77,255,0.2)}50%{text-shadow:0 0 15px rgba(255,215,61,0.8),0 0 40px rgba(124,77,255,0.4),0 0 60px rgba(255,107,107,0.2)}}
+        @keyframes launchSubReveal{0%{opacity:0;letter-spacing:20px;filter:blur(4px)}100%{opacity:0.6;letter-spacing:6px;filter:blur(0)}}
 
         .page-turning{animation:pageTurnOut .25s ease-in forwards}
         .page-turned-in{animation:pageTurnIn .25s ease-out forwards}
@@ -802,14 +817,109 @@ export default function MaxAnimeSoulSite() {
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.3s!important}}
       `}</style>
 
-      {/* ═══ VIDEO CINEMATIC OPENING ═══ */}
+      {/* ═══ LAUNCH PAGE — THE GATEWAY ═══ */}
+      {launchPage && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100000, 
+          background: "radial-gradient(ellipse at 50% 40%, #1a1060 0%, #0a0514 70%)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          animation: launchFading ? "launchFadeOut 1s ease-in forwards" : "none",
+          overflow: "hidden",
+        }}>
+          {/* Slow rotating orbital ring */}
+          <div aria-hidden="true" style={{
+            position: "absolute", width: "clamp(300px,60vw,600px)", height: "clamp(300px,60vw,600px)",
+            borderRadius: "50%", border: "1px solid rgba(124,77,255,0.12)",
+            animation: "launchOrbit 30s linear infinite", pointerEvents: "none",
+          }}>
+            <div style={{ position: "absolute", top: -3, left: "50%", width: 6, height: 6, borderRadius: "50%", background: "#7c4dff", boxShadow: "0 0 12px #7c4dff" }} />
+          </div>
+          {/* Second ring, counter-rotation */}
+          <div aria-hidden="true" style={{
+            position: "absolute", width: "clamp(220px,45vw,440px)", height: "clamp(220px,45vw,440px)",
+            borderRadius: "50%", border: "1px solid rgba(255,215,61,0.08)",
+            animation: "launchOrbit 22s linear reverse infinite", pointerEvents: "none",
+          }}>
+            <div style={{ position: "absolute", bottom: -3, right: "50%", width: 5, height: 5, borderRadius: "50%", background: "#ffd93d", boxShadow: "0 0 10px #ffd93d" }} />
+          </div>
+
+          {/* Ambient particles on launch page */}
+          {[...Array(8)].map((_, i) => (
+            <div key={i} aria-hidden="true" style={{
+              position: "absolute", width: 3 + Math.random() * 4, height: 3 + Math.random() * 4, borderRadius: "50%",
+              background: i % 2 === 0 ? "#7c4dff" : "#ffd93d", opacity: 0.3 + Math.random() * 0.3,
+              left: `${10 + Math.random() * 80}%`, top: `${10 + Math.random() * 80}%`,
+              animation: `launchFloat ${3 + Math.random() * 4}s ease-in-out ${-Math.random() * 5}s infinite`,
+              boxShadow: `0 0 8px ${i % 2 === 0 ? "#7c4dff" : "#ffd93d"}`,
+            }} />
+          ))}
+
+          {/* Title */}
+          <div style={{ textAlign: "center", zIndex: 2, animation: "launchFloat 5s ease-in-out infinite" }}>
+            <h1 style={{
+              fontFamily: "'Zen Dots',cursive", fontSize: "clamp(32px,8vw,72px)", color: "#e8e8e8",
+              textTransform: "uppercase", letterSpacing: "clamp(4px,1vw,12px)", lineHeight: 1.2,
+              animation: "launchTextGlow 4s ease-in-out infinite",
+              margin: 0, padding: "0 20px",
+            }}>
+              MAX
+            </h1>
+            <p style={{
+              fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px,1.5vw,13px)", color: "#a0a0b0",
+              textTransform: "uppercase", marginTop: 12,
+              animation: "launchSubReveal 1.5s ease-out 0.5s both",
+            }}>
+              THE ANIME SOUL EXPERIENCE
+            </p>
+          </div>
+
+          {/* Launch Button */}
+          <button
+            onClick={launchSite}
+            style={{
+              marginTop: "clamp(32px,6vh,60px)", zIndex: 2, fontFamily: "'Zen Dots',cursive",
+              fontSize: "clamp(14px,2.5vw,20px)", color: "#ffd93d", textTransform: "uppercase",
+              letterSpacing: "clamp(3px,0.6vw,8px)", background: "rgba(124,77,255,0.1)",
+              border: "2px solid rgba(124,77,255,0.4)", borderRadius: 12,
+              padding: "clamp(14px,2.5vh,22px) clamp(32px,6vw,64px)", cursor: "pointer",
+              backdropFilter: "blur(8px)", transition: "all 0.4s ease",
+              animation: "launchGlow 3s ease-in-out infinite",
+            }}
+            onMouseEnter={e => {
+              e.target.style.background = "rgba(124,77,255,0.25)";
+              e.target.style.borderColor = "#ffd93d";
+              e.target.style.color = "#fff";
+              e.target.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={e => {
+              e.target.style.background = "rgba(124,77,255,0.1)";
+              e.target.style.borderColor = "rgba(124,77,255,0.4)";
+              e.target.style.color = "#ffd93d";
+              e.target.style.transform = "scale(1)";
+            }}
+          >
+            Enter the Legend
+          </button>
+
+          {/* Bottom tagline */}
+          <p style={{
+            position: "absolute", bottom: "clamp(20px,4vh,40px)", fontFamily: "'Noto Serif JP',serif",
+            fontSize: "clamp(10px,1.3vw,13px)", color: "rgba(160,160,176,0.4)", fontStyle: "italic",
+            letterSpacing: 2, textAlign: "center", padding: "0 20px",
+          }}>
+            "The power of the three greats awakens the legends"
+          </p>
+        </div>
+      )}
+
+      {/* ═══ VIDEO CINEMATIC OPENING (with audio — user already clicked) ═══ */}
       {videoPlaying && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 99999, background: "#000",
           animation: videoFading ? "videoFadeOut 1.2s ease-in forwards" : "none",
         }}>
           <iframe
-            src="https://customer-7abpkonneyc0v28d.cloudflarestream.com/f61aa025af91f6951f5e2ead764b6e85/iframe?autoplay=true&muted=true&preload=auto&poster=https%3A%2F%2Fcustomer-7abpkonneyc0v28d.cloudflarestream.com%2Ff61aa025af91f6951f5e2ead764b6e85%2Fthumbnails%2Fthumbnail.jpg"
+            src="https://customer-7abpkonneyc0v28d.cloudflarestream.com/f61aa025af91f6951f5e2ead764b6e85/iframe?autoplay=true&preload=auto&poster=https%3A%2F%2Fcustomer-7abpkonneyc0v28d.cloudflarestream.com%2Ff61aa025af91f6951f5e2ead764b6e85%2Fthumbnails%2Fthumbnail.jpg"
             style={{ width: "100%", height: "100%", border: "none", position: "absolute", inset: 0 }}
             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
