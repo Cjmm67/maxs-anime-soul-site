@@ -1,4 +1,4 @@
-<GojoChat />import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import GojoChat from "./GojoChat";import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 /* ═══════════════════════════════════════════════════════════════
    MAX'S ANIME SOUL SITE — THE POWER OF THE THREE GREATS
