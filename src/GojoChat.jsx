@@ -1,4 +1,4 @@
-import { useState, useRef, useEffeimport { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 /* ═══════════════════════════════════════════════════════════════
    GOJO CHATBOT — "Nah, I'd Win" Edition
