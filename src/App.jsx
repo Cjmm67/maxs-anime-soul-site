@@ -1488,17 +1488,9 @@ export default function MaxAnimeSoulSite() {
               Three heroes. Three paths. One legendary story.
             </p>
           </RevealDiv>
-        </section>
 
-        {/* ═══════════════════════════════════════════════════════
-            SECRET ULTRA SUPER CODE
-            ═══════════════════════════════════════════════════════ */}
-        <section id="section-4" style={{
-          minHeight: "100vh",
-          background: "linear-gradient(135deg, #1a1060 0%, #2a1a80 25%, #3520a0 50%, #2a1a80 75%, #1a1060 100%)", backgroundSize: "300% 300%", animation: "gradientShift 24s ease-in-out infinite", padding: "80px 20px", position: "relative",
-        }}>
-          {/* Subtle ? hint */}
-          <RevealDiv style={{ maxWidth: 420, margin: "0 auto", textAlign: "center" }}>
+          {/* ═══ SECRET TRANSMISSION TERMINAL ═══ */}
+          <RevealDiv style={{ maxWidth: 420, margin: "48px auto 0", textAlign: "center" }}>
               <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffd93d", margin: "0 auto 20px",
                 boxShadow: "0 0 12px #ffd93d", animation: "breathe 2s ease-in-out infinite" }} />
               <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#a0a0b0", textTransform: "uppercase",
