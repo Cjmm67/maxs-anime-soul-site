@@ -454,28 +454,21 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
   return (
     <>
       {/* LEFT — Previous */}
-      <button onClick={() => navigate("left")} disabled={isFirst} style={cornerStyle("left")} title="Previous page">
-        <div style={{ position: "relative", width: 72, height: 72, overflow: "hidden" }}>
-          {/* Folded corner triangle */}
-          <div style={{
-            position: "absolute", bottom: 0, left: 0,
-            width: 0, height: 0, borderStyle: "solid",
-            borderWidth: "0 72px 72px 0",
-            borderColor: `transparent ${isFirst ? "rgba(120,60,220,0.25)" : "rgba(120,60,220,0.9)"} transparent transparent`,
-            transition: "all 0.3s", filter: flipping === "left" ? "brightness(1.5)" : "brightness(1)",
-            transform: flipping === "left" ? "scale(1.15)" : "scale(1)",
-          }} />
-          {/* Arrow icon */}
-          <div style={{ position: "absolute", bottom: 10, left: 6, transform: "rotate(0deg)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#666" : "#ffffff"} strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </div>
-          {/* Label */}
-          <span style={{ position: "absolute", bottom: 2, left: 22, fontFamily: "'Space Mono',monospace",
-            fontSize: 6, color: isFirst ? "#777" : "#e8e8f0", textTransform: "uppercase", letterSpacing: 1,
-            transform: "rotate(45deg)", transformOrigin: "left bottom" }}>TURN</span>
-        </div>
+      <button onClick={() => navigate("left")} disabled={isFirst} style={{
+        position: "fixed", bottom: 20, left: 16, zIndex: 80, cursor: isFirst ? "default" : "pointer",
+        background: isFirst ? "rgba(120,60,220,0.15)" : "rgba(120,60,220,0.6)",
+        border: `1px solid ${isFirst ? "rgba(120,60,220,0.2)" : "rgba(124,77,255,0.6)"}`,
+        borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", gap: 6,
+        transition: "all 0.3s", backdropFilter: "blur(8px)",
+        filter: flipping === "left" ? "brightness(1.5)" : "brightness(1)",
+        transform: flipping === "left" ? "scale(1.1)" : "scale(1)",
+        boxShadow: isFirst ? "none" : "0 0 15px rgba(124,77,255,0.3)",
+      }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isFirst ? "#666" : "#fff"} strokeWidth="2.5" strokeLinecap="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: isFirst ? "#666" : "#e8e8f0",
+          textTransform: "uppercase", letterSpacing: 2, fontWeight: 700 }}>TURN</span>
       </button>
 
       {/* Page counter — bottom centre */}
@@ -496,34 +489,90 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
       </div>
 
       {/* RIGHT — Next */}
-      <button onClick={() => navigate("right")} disabled={isLast} style={cornerStyle("right")} title="Next page">
-        <div style={{ position: "relative", width: 72, height: 72, overflow: "hidden" }}>
-          {/* Folded corner triangle */}
-          <div style={{
-            position: "absolute", bottom: 0, right: 0,
-            width: 0, height: 0, borderStyle: "solid",
-            borderWidth: "72px 0 0 72px",
-            borderColor: `transparent transparent transparent ${isLast ? "rgba(120,60,220,0.25)" : "rgba(120,60,220,0.9)"}`,
-            transition: "all 0.3s", filter: flipping === "right" ? "brightness(1.5)" : "brightness(1)",
-            transform: flipping === "right" ? "scale(1.15)" : "scale(1)",
-          }} />
-          {/* Arrow icon */}
-          <div style={{ position: "absolute", bottom: 10, right: 6 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#666" : "#ffffff"} strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </div>
-          {/* Label */}
-          <span style={{ position: "absolute", bottom: 2, right: 22, fontFamily: "'Space Mono',monospace",
-            fontSize: 6, color: isLast ? "#777" : "#e8e8f0", textTransform: "uppercase", letterSpacing: 1,
-            transform: "rotate(-45deg)", transformOrigin: "right bottom" }}>TURN</span>
-        </div>
+      <button onClick={() => navigate("right")} disabled={isLast} style={{
+        position: "fixed", bottom: 20, right: 16, zIndex: 80, cursor: isLast ? "default" : "pointer",
+        background: isLast ? "rgba(120,60,220,0.15)" : "rgba(120,60,220,0.6)",
+        border: `1px solid ${isLast ? "rgba(120,60,220,0.2)" : "rgba(124,77,255,0.6)"}`,
+        borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", gap: 6,
+        transition: "all 0.3s", backdropFilter: "blur(8px)",
+        filter: flipping === "right" ? "brightness(1.5)" : "brightness(1)",
+        transform: flipping === "right" ? "scale(1.1)" : "scale(1)",
+        boxShadow: isLast ? "none" : "0 0 15px rgba(124,77,255,0.3)",
+      }}>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: isLast ? "#666" : "#e8e8f0",
+          textTransform: "uppercase", letterSpacing: 2, fontWeight: 700 }}>TURN</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isLast ? "#666" : "#fff"} strokeWidth="2.5" strokeLinecap="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </button>
     </>
   );
 };
 
 export default function MaxAnimeSoulSite() {
+  // ─── AUTH & ADMIN STATE ─────────────────────────────────
+  const MASTER_PASSWORD = "LEGENDMAX";
+  const [signedIn, setSignedIn] = useState(() => {
+    try { return sessionStorage.getItem("maxsite_auth") === "true"; } catch { return false; }
+  });
+  const [isAdmin, setIsAdmin] = useState(() => {
+    try { return sessionStorage.getItem("maxsite_admin") === "true"; } catch { return false; }
+  });
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [loginInput, setLoginInput] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [newUserPass, setNewUserPass] = useState("");
+  const [adminMessage, setAdminMessage] = useState("");
+
+  // Get stored user passwords
+  const getPasswords = () => {
+    try { return JSON.parse(localStorage.getItem("maxsite_passwords") || "[]"); } catch { return []; }
+  };
+  const [userPasswords, setUserPasswords] = useState(getPasswords);
+
+  const handleLogin = () => {
+    const val = loginInput.trim();
+    if (!val) { setLoginError("Enter a password to continue"); return; }
+    if (val === MASTER_PASSWORD) {
+      setSignedIn(true); setIsAdmin(true); setShowAdminPanel(true); setLoginError("");
+      try { sessionStorage.setItem("maxsite_auth", "true"); sessionStorage.setItem("maxsite_admin", "true"); } catch {}
+      return;
+    }
+    const passwords = getPasswords();
+    if (passwords.includes(val)) {
+      setSignedIn(true); setIsAdmin(false); setLoginError("");
+      try { sessionStorage.setItem("maxsite_auth", "true"); } catch {}
+      return;
+    }
+    setLoginError("Access denied — invalid password");
+    setLoginInput("");
+  };
+
+  const addUserPassword = () => {
+    const val = newUserPass.trim();
+    if (!val) return;
+    if (val === MASTER_PASSWORD) { setAdminMessage("Cannot duplicate master password"); return; }
+    const current = getPasswords();
+    if (current.includes(val)) { setAdminMessage("Password already exists"); return; }
+    const updated = [...current, val];
+    localStorage.setItem("maxsite_passwords", JSON.stringify(updated));
+    setUserPasswords(updated); setNewUserPass(""); setAdminMessage(`Added: ${val}`);
+    setTimeout(() => setAdminMessage(""), 3000);
+  };
+
+  const removeUserPassword = (pass) => {
+    const updated = getPasswords().filter(p => p !== pass);
+    localStorage.setItem("maxsite_passwords", JSON.stringify(updated));
+    setUserPasswords(updated); setAdminMessage(`Removed password`);
+    setTimeout(() => setAdminMessage(""), 3000);
+  };
+
+  const handleLogout = () => {
+    setSignedIn(false); setIsAdmin(false); setShowAdminPanel(false); setLoginInput("");
+    try { sessionStorage.removeItem("maxsite_auth"); sessionStorage.removeItem("maxsite_admin"); } catch {}
+  };
+
+  // ─── SITE STATE ─────────────────────────────────────────
   const [launchPage, setLaunchPage] = useState(true);
   const [launchFading, setLaunchFading] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -820,12 +869,208 @@ export default function MaxAnimeSoulSite() {
         @keyframes launchOrbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes launchTextGlow{0%,100%{text-shadow:0 0 8px rgba(255,215,61,0.4),0 0 20px rgba(124,77,255,0.2)}50%{text-shadow:0 0 15px rgba(255,215,61,0.8),0 0 40px rgba(124,77,255,0.4),0 0 60px rgba(255,107,107,0.2)}}
         @keyframes launchSubReveal{0%{opacity:0;letter-spacing:20px;filter:blur(4px)}100%{opacity:0.6;letter-spacing:6px;filter:blur(0)}}
+        @keyframes loginShake{0%,100%{transform:translateX(0)}15%,45%,75%{transform:translateX(-6px)}30%,60%,90%{transform:translateX(6px)}}
+        @keyframes adminSlideIn{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
 
         .page-turning{animation:pageTurnOut .25s ease-in forwards}
         .page-turned-in{animation:pageTurnIn .25s ease-out forwards}
 
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.3s!important}}
       `}</style>
+
+      {/* ═══ SIGN-IN GATE ═══ */}
+      {!signedIn && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100001,
+          background: "radial-gradient(ellipse at 50% 30%, #0f0830 0%, #050210 80%)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          overflow: "hidden",
+        }}>
+          {/* Subtle background particles */}
+          {[...Array(6)].map((_, i) => (
+            <div key={i} aria-hidden="true" style={{
+              position: "absolute", width: 3, height: 3, borderRadius: "50%",
+              background: i % 2 === 0 ? "#7c4dff" : "#ffd93d", opacity: 0.2,
+              left: `${15 + Math.random() * 70}%`, top: `${15 + Math.random() * 70}%`,
+              animation: `launchFloat ${4 + Math.random() * 3}s ease-in-out ${-Math.random() * 4}s infinite`,
+            }} />
+          ))}
+
+          {/* Lock icon */}
+          <div style={{ width: 48, height: 48, borderRadius: "50%", border: "2px solid rgba(124,77,255,0.4)",
+            display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24,
+            background: "rgba(124,77,255,0.08)", animation: "breathe 3s ease-in-out infinite" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c4dff" strokeWidth="2" strokeLinecap="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+
+          <h1 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(20px,5vw,32px)", color: "#e8e8e8",
+            textTransform: "uppercase", letterSpacing: "clamp(3px,0.8vw,8px)", marginBottom: 8,
+            textShadow: "0 0 15px rgba(124,77,255,0.3)" }}>
+            ACCESS REQUIRED
+          </h1>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px,1.3vw,11px)", color: "#555",
+            textTransform: "uppercase", letterSpacing: 4, marginBottom: 32 }}>
+            ENTER PASSWORD TO CONTINUE
+          </p>
+
+          {/* Password input */}
+          <div style={{ width: "clamp(260px,70vw,360px)", textAlign: "center" }}>
+            <input
+              type="password"
+              value={loginInput}
+              onChange={(e) => { setLoginInput(e.target.value); setLoginError(""); }}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              placeholder="Password..."
+              autoFocus
+              style={{
+                width: "100%", background: "rgba(255,255,255,0.04)", border: "none",
+                borderBottom: `2px solid ${loginError ? "#ff6b6b" : "rgba(124,77,255,0.3)"}`,
+                borderRadius: "8px 8px 0 0", color: "#e8e8e8", fontFamily: "'Space Mono',monospace",
+                fontSize: 16, padding: "14px 16px", outline: "none", textAlign: "center", letterSpacing: 3,
+                animation: loginError ? "loginShake 0.4s ease" : "none",
+              }}
+            />
+            <button onClick={handleLogin} style={{
+              marginTop: 16, width: "100%", padding: "14px 24px", fontFamily: "'Zen Dots',cursive",
+              fontSize: 13, textTransform: "uppercase", letterSpacing: 4, color: "#ffd93d",
+              background: "rgba(124,77,255,0.12)", border: "1px solid rgba(124,77,255,0.4)",
+              borderRadius: 10, cursor: "pointer", transition: "all 0.3s",
+            }}
+              onMouseEnter={e => { e.target.style.background = "rgba(124,77,255,0.25)"; e.target.style.borderColor = "#ffd93d"; }}
+              onMouseLeave={e => { e.target.style.background = "rgba(124,77,255,0.12)"; e.target.style.borderColor = "rgba(124,77,255,0.4)"; }}
+            >
+              Authenticate
+            </button>
+
+            {loginError && (
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#ff6b6b",
+                textTransform: "uppercase", letterSpacing: 2, marginTop: 14 }}>{loginError}</p>
+            )}
+          </div>
+
+          <p style={{ position: "absolute", bottom: "clamp(16px,3vh,32px)", fontFamily: "'Noto Serif JP',serif",
+            fontSize: 11, color: "rgba(160,160,176,0.25)", fontStyle: "italic", letterSpacing: 2 }}>
+            Max's Anime Soul Site — Protected
+          </p>
+        </div>
+      )}
+
+      {/* ═══ ADMIN PANEL (overlay) ═══ */}
+      {isAdmin && showAdminPanel && signedIn && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100002,
+          background: "radial-gradient(ellipse at 50% 30%, #0f0830 0%, #050210 85%)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          overflow: "auto",
+        }}>
+          <div style={{ maxWidth: 420, width: "90%", animation: "adminSlideIn 0.5s ease-out" }}>
+            {/* Admin header */}
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #ffd93d, #7c4dff)",
+                margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: "0 0 20px rgba(255,215,61,0.3)" }}>
+                <span style={{ fontSize: 18 }}>⚡</span>
+              </div>
+              <h2 style={{ fontFamily: "'Zen Dots',cursive", fontSize: "clamp(18px,4vw,26px)", color: "#ffd93d",
+                textTransform: "uppercase", letterSpacing: 4, marginBottom: 6,
+                textShadow: "0 0 12px rgba(255,215,61,0.3)" }}>MASTER ADMIN</h2>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "#555",
+                textTransform: "uppercase", letterSpacing: 3 }}>ACCESS CONTROL PANEL</p>
+            </div>
+
+            {/* Add new password */}
+            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(124,77,255,0.2)",
+              borderRadius: 12, padding: 24, marginBottom: 20 }}>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "#7c4dff",
+                textTransform: "uppercase", letterSpacing: 3, marginBottom: 14 }}>ADD USER PASSWORD</p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="text"
+                  value={newUserPass}
+                  onChange={(e) => setNewUserPass(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addUserPassword()}
+                  placeholder="New password..."
+                  style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "none",
+                    borderBottom: "1px solid rgba(124,77,255,0.3)", borderRadius: "6px 6px 0 0",
+                    color: "#e8e8e8", fontFamily: "'Space Mono',monospace", fontSize: 13,
+                    padding: "10px 12px", outline: "none", letterSpacing: 1 }}
+                />
+                <button onClick={addUserPassword} style={{
+                  fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#ffd93d",
+                  background: "rgba(255,215,61,0.1)", border: "1px solid rgba(255,215,61,0.3)",
+                  borderRadius: 8, padding: "10px 16px", cursor: "pointer", textTransform: "uppercase",
+                  letterSpacing: 1, transition: "all 0.3s", whiteSpace: "nowrap",
+                }}>+ Add</button>
+              </div>
+              {adminMessage && (
+                <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "#4ecdc4",
+                  marginTop: 10, letterSpacing: 1 }}>{adminMessage}</p>
+              )}
+            </div>
+
+            {/* Current passwords list */}
+            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(124,77,255,0.2)",
+              borderRadius: 12, padding: 24, marginBottom: 20 }}>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "#7c4dff",
+                textTransform: "uppercase", letterSpacing: 3, marginBottom: 14 }}>ACTIVE PASSWORDS</p>
+
+              {/* Master password (non-removable) */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "10px 14px", background: "rgba(255,215,61,0.05)", borderRadius: 8,
+                border: "1px solid rgba(255,215,61,0.15)", marginBottom: 8 }}>
+                <div>
+                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#ffd93d", letterSpacing: 1 }}>
+                    {"•".repeat(MASTER_PASSWORD.length)}
+                  </span>
+                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: "#ffd93d",
+                    textTransform: "uppercase", letterSpacing: 2, marginLeft: 10, opacity: 0.7 }}>MASTER</span>
+                </div>
+                <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: "#555" }}>LOCKED</span>
+              </div>
+
+              {/* User passwords */}
+              {userPasswords.length === 0 ? (
+                <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, color: "#555", fontStyle: "italic",
+                  textAlign: "center", padding: "12px 0" }}>No user passwords set yet</p>
+              ) : userPasswords.map((pass, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: 8,
+                  border: "1px solid rgba(255,255,255,0.06)", marginBottom: 6 }}>
+                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#a0a0b0", letterSpacing: 1 }}>{pass}</span>
+                  <button onClick={() => removeUserPassword(pass)} style={{
+                    fontFamily: "'Space Mono',monospace", fontSize: 9, color: "#ff6b6b",
+                    background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.2)",
+                    borderRadius: 6, padding: "4px 10px", cursor: "pointer", textTransform: "uppercase",
+                    letterSpacing: 1, transition: "all 0.3s",
+                  }}>Remove</button>
+                </div>
+              ))}
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowAdminPanel(false)} style={{
+                flex: 1, fontFamily: "'Zen Dots',cursive", fontSize: 12, color: "#ffd93d",
+                background: "rgba(124,77,255,0.12)", border: "1px solid rgba(124,77,255,0.4)",
+                borderRadius: 10, padding: "14px 20px", cursor: "pointer", textTransform: "uppercase",
+                letterSpacing: 3, transition: "all 0.3s",
+              }}
+                onMouseEnter={e => { e.target.style.background = "rgba(124,77,255,0.25)"; }}
+                onMouseLeave={e => { e.target.style.background = "rgba(124,77,255,0.12)"; }}
+              >Enter Site</button>
+              <button onClick={handleLogout} style={{
+                fontFamily: "'Space Mono',monospace", fontSize: 10, color: "#666",
+                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 10, padding: "14px 16px", cursor: "pointer", textTransform: "uppercase",
+                letterSpacing: 2, transition: "all 0.3s",
+              }}>Logout</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══ LAUNCH PAGE — THE GATEWAY ═══ */}
       {launchPage && (
