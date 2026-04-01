@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import ChatBubble from "./ChatBubble";
 import BreakReminder from "./BreakReminder";
 
@@ -167,7 +166,7 @@ export default function ChatWindow() {
       {/* Header */}
       <div className="gojo-glow bg-gradient-to-r from-gojo-blue to-gojo-purple rounded-t-2xl p-4 flex items-center gap-3">
         <div className="w-12 h-12 rounded-full overflow-hidden">
-          <Image src="/gojo-avatar.svg" alt="Gojo" width={48} height={48} />
+          <img src="/gojo-avatar.svg" alt="Gojo" width={48} height={48} />
         </div>
         <div className="flex-1">
           <h1 className="text-lg font-bold">Gojo-sensei</h1>
@@ -192,7 +191,7 @@ export default function ChatWindow() {
         {isLoading && (
           <div className="flex items-center gap-2 chat-bubble">
             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-              <Image src="/gojo-avatar.svg" alt="Gojo" width={32} height={32} />
+              <img src="/gojo-avatar.svg" alt="Gojo" width={32} height={32} />
             </div>
             <div className="bg-white/10 rounded-2xl rounded-bl-md px-4 py-3 flex gap-1">
               <span className="typing-dot w-2 h-2 bg-gojo-blue rounded-full inline-block" />

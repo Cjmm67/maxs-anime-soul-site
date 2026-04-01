@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -19,7 +17,7 @@ export default function ChatBubble({ message }: { message: Message }) {
       {/* Gojo avatar */}
       {isGojo && (
         <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 mt-1">
-          <Image src="/gojo-avatar.svg" alt="Gojo" width={32} height={32} />
+          <img src="/gojo-avatar.svg" alt="Gojo" width={32} height={32} />
         </div>
       )}
 

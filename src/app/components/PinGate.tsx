@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 
 interface PinGateProps {
   onUnlock: () => void;
@@ -46,7 +45,7 @@ export default function PinGate({ onUnlock }: PinGateProps) {
       <div className="text-center space-y-6 max-w-xs">
         {/* Gojo Avatar */}
         <div className="mx-auto w-24 h-24 rounded-full overflow-hidden gojo-glow">
-          <Image
+          <img
             src="/gojo-avatar.svg"
             alt="Gojo-sensei"
             width={96}
