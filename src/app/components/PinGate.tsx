@@ -11,17 +11,14 @@ export default function PinGate({ onUnlock }: PinGateProps) {
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  // PIN is verified server-side, but we do a quick check here too
   const handleSubmit = async () => {
     if (pin.length !== 4) return;
-
     try {
       const res = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin }),
       });
-
       if (res.ok) {
         onUnlock();
       } else {
@@ -36,104 +33,87 @@ export default function PinGate({ onUnlock }: PinGateProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit();
-  };
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="text-center space-y-6 max-w-xs">
-        {/* Gojo Avatar */}
-        <div className="mx-auto w-24 h-24 rounded-full overflow-hidden gojo-glow">
-          <img
-            src="/gojo-avatar.svg"
-            alt="Gojo-sensei"
-            width={96}
-            height={96}
-          />
-        </div>
-
-        <div>
-          <h1 className="text-2xl font-bold text-gojo-blue">Gojo-sensei</h1>
-          <p className="text-white/50 text-sm mt-1">Enter your secret code to chat</p>
-        </div>
-
-        {/* PIN Input */}
-        <div className={`transition-transform ${shake ? "animate-[shake_0.5s]" : ""}`}>
-          <div className="flex gap-3 justify-center">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
-                  pin.length > i
-                    ? "border-gojo-blue bg-gojo-blue/20 text-white"
-                    : "border-white/20 bg-white/5 text-white/30"
-                }`}
-              >
-                {pin.length > i ? "•" : ""}
-              </div>
-            ))}
-          </div>
-
-          <input
-            type="tel"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={4}
-            value={pin}
-            onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, "").substring(0, 4);
-              setPin(val);
-              setError(false);
-            }}
-            onKeyDown={handleKeyDown}
-            className="absolute opacity-0 w-0 h-0"
-            autoFocus
-          />
-        </div>
-
-        {/* Visible number pad for mobile */}
-        <div className="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, "⌫"].map((num, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                if (num === null) return;
-                if (num === "⌫") {
-                  setPin((p) => p.slice(0, -1));
-                } else if (pin.length < 4) {
-                  setPin((p) => p + num);
-                }
-                setError(false);
-              }}
-              className={`h-12 rounded-xl text-lg font-semibold transition-all ${
-                num === null
-                  ? "invisible"
-                  : "bg-white/10 hover:bg-white/20 active:bg-gojo-blue/30 text-white"
-              }`}
-            >
-              {num}
-            </button>
-          ))}
-        </div>
-
-        {/* Enter button */}
-        <button
-          onClick={handleSubmit}
-          disabled={pin.length !== 4}
-          className="w-full bg-gradient-to-r from-gojo-blue to-gojo-purple text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-30"
-        >
-          Enter Domain 😎
-        </button>
-
-        {error && (
-          <p className="text-red-400 text-sm">Wrong code! Try again.</p>
-        )}
-
-        <p className="text-white/20 text-xs">
-          Ask your parents for the code
+    <div style={{ padding: "20px", textAlign: "center" }}>
+      <div style={{ marginBottom: 16 }}>
+        <p style={{
+          fontFamily: "'Space Mono',monospace", fontSize: 10, color: "rgba(255,255,255,0.5)",
+          textTransform: "uppercase", letterSpacing: 2,
+        }}>
+          Enter your secret code to chat
         </p>
       </div>
+
+      {/* PIN dots */}
+      <div style={{
+        display: "flex", gap: 10, justifyContent: "center", marginBottom: 16,
+        animation: shake ? "loginShake 0.4s ease" : "none",
+      }}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} style={{
+            width: 40, height: 48, borderRadius: 10,
+            border: `2px solid ${pin.length > i ? "#0066ff" : "rgba(255,255,255,0.2)"}`,
+            background: pin.length > i ? "rgba(0,102,255,0.2)" : "rgba(255,255,255,0.05)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 20, fontWeight: "bold", color: "#fff", transition: "all 0.2s",
+          }}>
+            {pin.length > i ? "•" : ""}
+          </div>
+        ))}
+      </div>
+
+      {/* Number pad */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, maxWidth: 180, margin: "0 auto 12px" }}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, "⌫"].map((num, i) => (
+          <button
+            key={i}
+            onClick={() => {
+              if (num === null) return;
+              if (num === "⌫") { setPin((p) => p.slice(0, -1)); }
+              else if (pin.length < 4) { setPin((p) => p + num); }
+              setError(false);
+            }}
+            style={{
+              height: 40, borderRadius: 10, fontSize: 16, fontWeight: 600,
+              background: num === null ? "transparent" : "rgba(255,255,255,0.1)",
+              border: "none", color: "#fff", cursor: num === null ? "default" : "pointer",
+              visibility: num === null ? "hidden" : "visible",
+              transition: "all 0.2s",
+            }}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
+
+      {/* Enter button */}
+      <button
+        onClick={handleSubmit}
+        disabled={pin.length !== 4}
+        style={{
+          width: "100%", maxWidth: 180,
+          background: pin.length === 4 ? "linear-gradient(135deg, #0066ff, #7c4dff)" : "rgba(255,255,255,0.05)",
+          color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px",
+          fontFamily: "'Outfit',sans-serif", fontWeight: 600, fontSize: 13, cursor: pin.length === 4 ? "pointer" : "default",
+          opacity: pin.length === 4 ? 1 : 0.3, transition: "all 0.3s",
+        }}
+      >
+        Enter Domain 😎
+      </button>
+
+      {error && (
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "#f87171", marginTop: 10 }}>
+          Wrong code! Try again.
+        </p>
+      )}
+
+      <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 12 }}>
+        Ask your parents for the code
+      </p>
+
+      <style>{`
+        @keyframes loginShake{0%,100%{transform:translateX(0)}15%,45%,75%{transform:translateX(-6px)}30%,60%,90%{transform:translateX(6px)}}
+      `}</style>
     </div>
   );
 }

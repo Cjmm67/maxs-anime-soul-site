@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface DateSummary {
   date: string;
@@ -38,20 +38,13 @@ export default function ParentDashboard() {
     setLoading(true);
     try {
       const res = await fetch("/api/parent/logs", { headers });
-      if (res.status === 401) {
-        setError("Wrong password");
-        setAuthenticated(false);
-        return;
-      }
+      if (res.status === 401) { setError("Wrong password"); setAuthenticated(false); return; }
       const data = await res.json();
       setDates(data.dates || []);
       setAuthenticated(true);
       setError("");
-    } catch {
-      setError("Failed to load");
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError("Failed to load"); }
+    finally { setLoading(false); }
   };
 
   const fetchLogs = async (date: string) => {
@@ -61,36 +54,47 @@ export default function ParentDashboard() {
       const res = await fetch(`/api/parent/logs?date=${date}`, { headers });
       const data = await res.json();
       setLogs(data.logs || []);
-    } catch {
-      setError("Failed to load logs");
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError("Failed to load logs"); }
+    finally { setLoading(false); }
   };
 
   // Login screen
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-sm w-full space-y-4 text-center">
-          <h1 className="text-2xl font-bold text-gojo-blue">🔒 Parent Dashboard</h1>
-          <p className="text-white/50 text-sm">Enter the parent password to view chat logs</p>
+      <div style={{
+        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16, background: "linear-gradient(135deg, #0a0514, #1a1060)",
+      }}>
+        <div style={{ maxWidth: 380, width: "100%", textAlign: "center" }}>
+          <h1 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 24, color: "#0066ff", marginBottom: 8 }}>🔒 Parent Dashboard</h1>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 24 }}>
+            Enter the parent password to view chat logs
+          </p>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && fetchDates()}
             placeholder="Parent password"
-            className="w-full bg-white/10 text-white placeholder-white/40 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-gojo-blue/50"
+            style={{
+              width: "100%", background: "rgba(255,255,255,0.1)", color: "#e8e8e8",
+              border: "none", borderRadius: 12, padding: "14px 16px",
+              fontFamily: "'Outfit',sans-serif", fontSize: 14, outline: "none", marginBottom: 12,
+            }}
           />
           <button
             onClick={fetchDates}
             disabled={!password || loading}
-            className="w-full bg-gradient-to-r from-gojo-blue to-gojo-purple text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-30"
+            style={{
+              width: "100%", background: "linear-gradient(135deg, #0066ff, #7c4dff)",
+              color: "#fff", border: "none", borderRadius: 12, padding: "14px 24px",
+              fontFamily: "'Outfit',sans-serif", fontWeight: 600, fontSize: 14, cursor: "pointer",
+              opacity: !password || loading ? 0.3 : 1,
+            }}
           >
             {loading ? "Loading..." : "View Logs"}
           </button>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#f87171", marginTop: 12 }}>{error}</p>}
         </div>
       </div>
     );
@@ -99,43 +103,49 @@ export default function ParentDashboard() {
   // Date list view
   if (!selectedDate) {
     return (
-      <div className="min-h-screen p-6 max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gojo-blue">🔒 Parent Dashboard</h1>
+      <div style={{
+        minHeight: "100vh", padding: 24, maxWidth: 640, margin: "0 auto",
+        background: "linear-gradient(135deg, #0a0514, #1a1060)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+          <h1 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 22, color: "#0066ff" }}>🔒 Parent Dashboard</h1>
           <button
             onClick={() => { setAuthenticated(false); setPassword(""); }}
-            className="text-white/40 hover:text-white/70 text-sm"
+            style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "rgba(255,255,255,0.4)", background: "none", border: "none", cursor: "pointer" }}
           >
             Log out
           </button>
         </div>
 
         {dates.length === 0 ? (
-          <div className="text-center text-white/40 py-20">
-            <p className="text-4xl mb-4">📭</p>
-            <p>No chat logs yet. Max hasn&apos;t started chatting!</p>
+          <div style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", padding: "80px 0" }}>
+            <p style={{ fontSize: 36, marginBottom: 16 }}>📭</p>
+            <p style={{ fontFamily: "'Outfit',sans-serif" }}>No chat logs yet. Max hasn&apos;t started chatting!</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {dates.map((d) => (
               <button
                 key={d.date}
                 onClick={() => fetchLogs(d.date)}
-                className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 text-left transition-all"
+                style={{
+                  width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 12, padding: 16, textAlign: "left", cursor: "pointer", transition: "all 0.2s",
+                }}
               >
-                <div className="flex items-center justify-between">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div>
-                    <p className="font-semibold text-white">{d.date}</p>
-                    <p className="text-white/50 text-sm">{d.messageCount} messages</p>
+                    <p style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 600, color: "#fff", marginBottom: 4 }}>{d.date}</p>
+                    <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{d.messageCount} messages</p>
                   </div>
-                  <div className="flex gap-3 text-sm">
+                  <div style={{ display: "flex", gap: 8, fontSize: 12 }}>
                     {d.welfareAlerts > 0 && (
-                      <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full">
+                      <span style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", padding: "4px 12px", borderRadius: 20, fontFamily: "'Space Mono',monospace" }}>
                         ⚠️ {d.welfareAlerts} alert{d.welfareAlerts !== 1 ? "s" : ""}
                       </span>
                     )}
                     {d.filterBlocks > 0 && (
-                      <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">
+                      <span style={{ background: "rgba(234,179,8,0.2)", color: "#fbbf24", padding: "4px 12px", borderRadius: 20, fontFamily: "'Space Mono',monospace" }}>
                         🛡️ {d.filterBlocks} blocked
                       </span>
                     )}
@@ -151,66 +161,67 @@ export default function ParentDashboard() {
 
   // Individual day log view
   return (
-    <div className="min-h-screen p-6 max-w-2xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
+    <div style={{
+      minHeight: "100vh", padding: 24, maxWidth: 640, margin: "0 auto",
+      background: "linear-gradient(135deg, #0a0514, #1a1060)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
         <button
           onClick={() => { setSelectedDate(null); setLogs([]); }}
-          className="text-gojo-blue hover:text-white transition-all"
+          style={{ fontFamily: "'Outfit',sans-serif", color: "#0066ff", background: "none", border: "none", cursor: "pointer", fontSize: 14 }}
         >
           ← Back
         </button>
-        <h1 className="text-xl font-bold text-gojo-blue">{selectedDate}</h1>
+        <h1 style={{ fontFamily: "'Zen Dots',cursive", fontSize: 18, color: "#0066ff" }}>{selectedDate}</h1>
       </div>
 
       {loading ? (
-        <p className="text-white/40 text-center py-10">Loading...</p>
+        <p style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "40px 0" }}>Loading...</p>
       ) : (
-        <div className="space-y-2">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {logs.map((entry, i) => {
-            // Welfare alerts
             if (entry.type === "WELFARE_ALERT") {
               return (
-                <div key={i} className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-red-400 font-bold">⚠️ Welfare Alert (Tier {entry.level})</span>
-                    <span className="text-white/30 text-xs">{entry._logged || entry.timestamp}</span>
+                <div key={i} style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, padding: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 700, color: "#f87171" }}>⚠️ Welfare Alert (Tier {entry.level})</span>
+                    <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{entry._logged || entry.timestamp}</span>
                   </div>
-                  <p className="text-white/70 text-sm"><strong>Max said:</strong> {entry.userMessage}</p>
-                  <p className="text-white/50 text-sm mt-1"><strong>Reason:</strong> {entry.reason}</p>
-                  <p className="text-white/50 text-sm mt-1"><strong>Gojo responded:</strong> {entry.responseGiven}</p>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: "rgba(255,255,255,0.7)" }}><strong>Max said:</strong> {entry.userMessage}</p>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}><strong>Reason:</strong> {entry.reason}</p>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}><strong>Gojo responded:</strong> {entry.responseGiven}</p>
                 </div>
               );
             }
 
-            // Filter events
             if (entry.type === "FILTER_EVENT") {
               return (
-                <div key={i} className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-400 text-sm">🛡️ {entry.direction} filter</span>
-                    <span className="text-white/30 text-xs">{entry._logged}</span>
+                <div key={i} style={{ background: "rgba(234,179,8,0.1)", border: "1px solid rgba(234,179,8,0.2)", borderRadius: 12, padding: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "#fbbf24" }}>🛡️ {entry.direction} filter</span>
+                    <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{entry._logged}</span>
                   </div>
-                  <p className="text-white/50 text-xs mt-1">{entry.reason || (entry as Record<string, unknown>).flags?.toString()}</p>
+                  <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
+                    {entry.reason || (entry as Record<string, unknown>).flags?.toString()}
+                  </p>
                 </div>
               );
             }
 
-            // Regular messages
             if (entry.type === "MESSAGE") {
               const isMax = entry.role === "user";
               return (
-                <div key={i} className={`flex ${isMax ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
-                      isMax
-                        ? "bg-gojo-purple/30 text-white"
-                        : "bg-white/10 text-white/80"
-                    }`}
-                  >
-                    <p className="text-[10px] text-white/30 mb-1">
+                <div key={i} style={{ display: "flex", justifyContent: isMax ? "flex-end" : "flex-start" }}>
+                  <div style={{
+                    maxWidth: "80%", borderRadius: 12, padding: "8px 12px", fontSize: 13,
+                    fontFamily: "'Outfit',sans-serif",
+                    background: isMax ? "rgba(124,77,255,0.3)" : "rgba(255,255,255,0.1)",
+                    color: isMax ? "#fff" : "rgba(255,255,255,0.8)",
+                  }}>
+                    <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>
                       {isMax ? "Max" : "Gojo"} • {entry._logged ? new Date(entry._logged).toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" }) : ""}
                     </p>
-                    <p>{entry.content}</p>
+                    <p style={{ margin: 0 }}>{entry.content}</p>
                   </div>
                 </div>
               );

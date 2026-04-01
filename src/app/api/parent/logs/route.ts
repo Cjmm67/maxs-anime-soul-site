@@ -4,7 +4,7 @@
 // =============================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { getLogsForDate, getLogDates } from "@/lib/logger";
+import { getLogsForDate, getLogDates } from "../../../../lib/logger";
 
 export async function GET(request: NextRequest) {
   // Verify parent password via header

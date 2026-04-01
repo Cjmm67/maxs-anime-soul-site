@@ -7,12 +7,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { SYSTEM_PROMPT, MAX_TOKENS, MODEL, TEMPERATURE } from "@/lib/system-prompt";
-import { filterInput } from "@/lib/input-filter";
-import { filterOutput } from "@/lib/output-filter";
-import { recordWelfareEvent } from "@/lib/welfare";
-import { logMessage, logFilterEvent } from "@/lib/logger";
-import { checkUsageLimit, recordUsage } from "@/lib/usage-limiter";
+import { SYSTEM_PROMPT, MAX_TOKENS, MODEL, TEMPERATURE } from "../../../lib/system-prompt";
+import { filterInput } from "../../../lib/input-filter";
+import { filterOutput } from "../../../lib/output-filter";
+import { recordWelfareEvent } from "../../../lib/welfare";
+import { logMessage, logFilterEvent } from "../../../lib/logger";
+import { checkUsageLimit, recordUsage } from "../../../lib/usage-limiter";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
