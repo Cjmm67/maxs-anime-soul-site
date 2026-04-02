@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     const locked = await redis.get("gojo-locked");
     return NextResponse.json({ 
-      locked: locked === "true",
+      locked: !!locked,
       debug: { 
         rawValue: locked, 
         type: typeof locked,

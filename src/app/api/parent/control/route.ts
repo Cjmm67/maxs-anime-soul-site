@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       // Verify it was actually written
       const verify = await redis.get("gojo-locked");
       console.log("Lock result:", result, "Verify:", verify);
-      if (verify !== "true") {
+      if (!verify) {
         return NextResponse.json({ 
           success: false, 
           error: "Redis write failed", 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const locked = await redis.get("gojo-locked");
-    return NextResponse.json({ locked: locked === "true" });
+    return NextResponse.json({ locked: !!locked });
   } catch (error) {
     console.error("Control error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

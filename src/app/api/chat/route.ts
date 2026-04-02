@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Check if parent locked the chat
     const locked = await redis.get("gojo-locked");
-    if (locked === "true") {
+    if (locked) {
       return NextResponse.json({
         response: "🔒 Gojo-sensei is taking a break right now. Your parents locked the chat. Come back later!",
         filtered: false,
