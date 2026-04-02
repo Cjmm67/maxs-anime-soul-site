@@ -31,6 +31,8 @@ export default function ParentDashboard() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [locked, setLocked] = useState(false);
+  const [controlLoading, setControlLoading] = useState(false);
 
   const headers = { "x-parent-password": password };
 
@@ -43,6 +45,13 @@ export default function ParentDashboard() {
       setDates(data.dates || []);
       setAuthenticated(true);
       setError("");
+      
+      // Fetch lock status
+      const controlRes = await fetch("/api/parent/control", { headers });
+      if (controlRes.ok) {
+        const controlData = await controlRes.json();
+        setLocked(controlData.locked);
+      }
     } catch { setError("Failed to load"); }
     finally { setLoading(false); }
   };
@@ -56,6 +65,21 @@ export default function ParentDashboard() {
       setLogs(data.logs || []);
     } catch { setError("Failed to load logs"); }
     finally { setLoading(false); }
+  };
+
+  const toggleLock = async () => {
+    setControlLoading(true);
+    try {
+      const res = await fetch("/api/parent/control", {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: locked ? "unlock" : "lock" }),
+      });
+      if (res.ok) {
+        setLocked(!locked);
+      }
+    } catch { setError("Failed to toggle lock"); }
+    finally { setControlLoading(false); }
   };
 
   // Login screen
@@ -115,6 +139,48 @@ export default function ParentDashboard() {
           >
             Log out
           </button>
+        </div>
+
+        {/* Chat Control Panel */}
+        <div style={{
+          background: locked ? "rgba(239,68,68,0.08)" : "rgba(0,255,136,0.05)",
+          border: `1px solid ${locked ? "rgba(239,68,68,0.3)" : "rgba(0,255,136,0.2)"}`,
+          borderRadius: 12, padding: 20, marginBottom: 24,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <span style={{ fontSize: 18 }}>{locked ? "🔒" : "✅"}</span>
+                <h3 style={{
+                  fontFamily: "'Zen Dots',cursive", fontSize: 14, margin: 0,
+                  color: locked ? "#f87171" : "#4ade80", textTransform: "uppercase", letterSpacing: 2,
+                }}>
+                  Chat is {locked ? "LOCKED" : "ACTIVE"}
+                </h3>
+              </div>
+              <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+                {locked
+                  ? "Max cannot use the Gojo chatbot. Click unlock when ready."
+                  : "Max can chat with Gojo. Lock to temporarily disable."}
+              </p>
+            </div>
+            <button
+              onClick={toggleLock}
+              disabled={controlLoading}
+              style={{
+                background: locked
+                  ? "linear-gradient(135deg, #22c55e, #16a34a)"
+                  : "linear-gradient(135deg, #ef4444, #dc2626)",
+                color: "#fff", border: "none", borderRadius: 10,
+                padding: "12px 24px", fontFamily: "'Outfit',sans-serif", fontWeight: 600,
+                fontSize: 13, cursor: controlLoading ? "wait" : "pointer",
+                opacity: controlLoading ? 0.5 : 1, transition: "all 0.3s",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {controlLoading ? "..." : locked ? "🔓 Unlock Chat" : "🔒 Lock Chat"}
+            </button>
+          </div>
         </div>
 
         {dates.length === 0 ? (

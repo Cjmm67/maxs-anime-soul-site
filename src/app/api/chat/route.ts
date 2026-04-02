@@ -13,6 +13,7 @@ import { filterOutput } from "../../../lib/output-filter";
 import { recordWelfareEvent } from "../../../lib/welfare";
 import { logMessage, logFilterEvent } from "../../../lib/logger";
 import { checkUsageLimit, recordUsage } from "../../../lib/usage-limiter";
+import { redis } from "../../../lib/redis";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -43,6 +44,16 @@ export async function POST(request: NextRequest) {
     const authCookie = request.cookies.get("gojo-auth");
     if (!authCookie || authCookie.value !== "authenticated") {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Check if parent locked the chat
+    const locked = await redis.get("gojo-locked");
+    if (locked === "true") {
+      return NextResponse.json({
+        response: "🔒 Gojo-sensei is taking a break right now. Your parents locked the chat. Come back later!",
+        filtered: false,
+        locked: true,
+      });
     }
 
     const { message } = await request.json();
