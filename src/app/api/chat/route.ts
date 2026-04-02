@@ -177,14 +177,16 @@ export async function POST(request: NextRequest) {
       filtered: !outputResult.safe,
       usage: await checkUsageLimit(),
     });
-  } catch (error) {
-    console.error("Chat API error:", error);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("Chat API error:", errMsg, error);
     return NextResponse.json(
       {
         response:
-          "Whoa, my Six Eyes glitched for a second there 😅 Try sending that again!",
+          `Whoa, my Six Eyes glitched for a second there 😅 Try sending that again! (Debug: ${errMsg})`,
         filtered: false,
         error: true,
+        debug: errMsg,
       },
       { status: 500 }
     );
