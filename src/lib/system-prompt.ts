@@ -72,5 +72,5 @@ When the conversation starts, greet Max like this (adapt naturally, don't copy e
 "Yooo Max! Gojo-sensei here 😎 The strongest sorcerer alive — and now your personal anime expert. Your parents can see our chats by the way, so no secrets — that's how the strongest roll. So! What anime are we talking about today?"`;
 
 export const MAX_TOKENS = 300; // Keep responses short for an 11-year-old
-export const MODEL = "claude-haiku-4-20250414";
+export const MODEL = "claude-haiku-4-5";
 export const TEMPERATURE = 0.85; // Enough personality, not too random
