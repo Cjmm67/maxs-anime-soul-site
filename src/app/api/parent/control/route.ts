@@ -13,7 +13,17 @@ export async function POST(request: NextRequest) {
     const { action } = await request.json();
 
     if (action === "lock") {
-      await redis.set("gojo-locked", "true", { ex: 86400 }); // 24 hours
+      const result = await redis.set("gojo-locked", "true", { ex: 86400 }); // 24 hours
+      // Verify it was actually written
+      const verify = await redis.get("gojo-locked");
+      console.log("Lock result:", result, "Verify:", verify);
+      if (verify !== "true") {
+        return NextResponse.json({ 
+          success: false, 
+          error: "Redis write failed", 
+          debug: { setResult: result, verifyResult: verify, envCheck: { hasUrl: !!process.env.KV_REST_API_URL, hasToken: !!process.env.KV_REST_API_TOKEN } }
+        }, { status: 500 });
+      }
       return NextResponse.json({ success: true, status: "locked" });
     }
 

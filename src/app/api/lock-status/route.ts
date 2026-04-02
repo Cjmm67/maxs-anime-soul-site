@@ -10,10 +10,18 @@ import { redis } from "../../../lib/redis";
 export async function GET(request: NextRequest) {
   try {
     const locked = await redis.get("gojo-locked");
-    return NextResponse.json({ locked: locked === "true" });
+    return NextResponse.json({ 
+      locked: locked === "true",
+      debug: { 
+        rawValue: locked, 
+        type: typeof locked,
+        hasUrl: !!process.env.KV_REST_API_URL,
+        hasToken: !!process.env.KV_REST_API_TOKEN,
+        urlPrefix: process.env.KV_REST_API_URL?.substring(0, 30) || "NOT_SET"
+      }
+    });
   } catch (error) {
     console.error("Lock status check error:", error);
-    // Default to unlocked on error so the chat isn't broken
-    return NextResponse.json({ locked: false });
+    return NextResponse.json({ locked: false, error: String(error) });
   }
 }
