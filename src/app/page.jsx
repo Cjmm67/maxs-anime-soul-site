@@ -456,7 +456,7 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
     <>
       {/* LEFT — Previous */}
       <button onClick={() => navigate("left")} disabled={isFirst} style={{
-        position: "fixed", bottom: 20, left: 16, zIndex: 80, cursor: isFirst ? "default" : "pointer",
+        position: "fixed", bottom: 80, left: 16, zIndex: 80, cursor: isFirst ? "default" : "pointer",
         background: isFirst ? "rgba(120,60,220,0.15)" : "rgba(120,60,220,0.6)",
         border: `1px solid ${isFirst ? "rgba(120,60,220,0.2)" : "rgba(124,77,255,0.6)"}`,
         borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", gap: 6,
@@ -491,7 +491,7 @@ const PageTurner = ({ currentPage, totalPages, onNavigate, pageNames }) => {
 
       {/* RIGHT — Next */}
       <button onClick={() => navigate("right")} disabled={isLast} style={{
-        position: "fixed", bottom: 20, right: 16, zIndex: 80, cursor: isLast ? "default" : "pointer",
+        position: "fixed", bottom: 80, right: 16, zIndex: 80, cursor: isLast ? "default" : "pointer",
         background: isLast ? "rgba(120,60,220,0.15)" : "rgba(120,60,220,0.6)",
         border: `1px solid ${isLast ? "rgba(120,60,220,0.2)" : "rgba(124,77,255,0.6)"}`,
         borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", gap: 6,
