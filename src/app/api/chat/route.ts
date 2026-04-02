@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         response:
-          `Debug: ${errMsg}`,
+          "Whoa, my Six Eyes glitched for a second there 😅 Try sending that again!",
         filtered: false,
         error: true,
       },
