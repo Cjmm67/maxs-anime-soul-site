@@ -17,7 +17,25 @@ export default function GojoChat() {
   const [pinError, setPinError] = useState(false);
   const [shake, setShake] = useState(false);
   const [usage, setUsage] = useState<UsageStatus | null>(null);
+  const [chatLocked, setChatLocked] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
+
+  // Check lock status whenever chat is opened or authenticated
+  useEffect(() => {
+    if (!isOpen) return;
+    const checkLock = async () => {
+      try {
+        const res = await fetch("/api/lock-status");
+        if (res.ok) {
+          const data = await res.json();
+          setChatLocked(data.locked === true);
+        }
+      } catch { /* silent */ }
+    };
+    checkLock();
+    const interval = setInterval(checkLock, 10000); // re-check every 10s
+    return () => clearInterval(interval);
+  }, [isOpen]);
 
   // Fetch usage status on mount and when authenticated
   useEffect(() => {
@@ -314,8 +332,55 @@ export default function GojoChat() {
                 Ask your parents for the code
               </p>
             </div>
+          ) : chatLocked ? (
+            /* Authenticated but chat is locked by parent */
+            <div
+              style={{
+                padding: "32px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ fontSize: 48, margin: 0 }}>🔒</p>
+              <h2
+                style={{
+                  fontFamily: "'Zen Dots', cursive",
+                  fontSize: 18,
+                  color: "#f87171",
+                  margin: 0,
+                  textTransform: "uppercase",
+                  letterSpacing: 2,
+                }}
+              >
+                Chat is Locked
+              </h2>
+              <p
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 14,
+                  color: "rgba(255,255,255,0.6)",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
+              >
+                Gojo-sensei is taking a break right now! 😎💤
+              </p>
+              <p
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: 11,
+                  color: "rgba(255,255,255,0.3)",
+                  margin: 0,
+                }}
+              >
+                Your parents have locked the chat. Ask them to unlock it when you&apos;re ready to chat again.
+              </p>
+            </div>
           ) : (
-            /* Authenticated: Show ChatWindow */
+            /* Authenticated and unlocked: Show ChatWindow */
             <ChatWindow />
           )}
         </div>

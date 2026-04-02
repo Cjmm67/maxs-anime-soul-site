@@ -27,6 +27,7 @@ export default function ChatWindow() {
   const [showBreakReminder, setShowBreakReminder] = useState(false);
   const [usage, setUsage] = useState<UsageStatus | null>(null);
   const [limitReached, setLimitReached] = useState(false);
+  const [chatLocked, setChatLocked] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -63,7 +64,7 @@ export default function ChatWindow() {
 
   const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isLoading || limitReached) return;
+    if (!trimmed || isLoading || limitReached || chatLocked) return;
     const userMsg: Message = { id: `user-${Date.now()}`, role: "user", content: trimmed, timestamp: new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
@@ -75,14 +76,23 @@ export default function ChatWindow() {
         body: JSON.stringify({ message: trimmed }),
       });
       const data = await res.json();
-      if (data.usage) {
-        setUsage(data.usage);
-        if (data.limitReached || !data.usage.allowed) setLimitReached(true);
+      if (data.locked) {
+        setChatLocked(true);
+        setMessages((prev) => [...prev, {
+          id: `assistant-${Date.now()}`, role: "assistant",
+          content: data.response || "🔒 Gojo-sensei is taking a break right now. Your parents locked the chat. Come back later!",
+          timestamp: new Date(),
+        }]);
+      } else {
+        if (data.usage) {
+          setUsage(data.usage);
+          if (data.limitReached || !data.usage.allowed) setLimitReached(true);
+        }
+        setMessages((prev) => [...prev, {
+          id: `assistant-${Date.now()}`, role: "assistant",
+          content: data.response || "Hmm, my Six Eyes glitched. Try again!", timestamp: new Date(),
+        }]);
       }
-      setMessages((prev) => [...prev, {
-        id: `assistant-${Date.now()}`, role: "assistant",
-        content: data.response || "Hmm, my Six Eyes glitched. Try again!", timestamp: new Date(),
-      }]);
     } catch {
       setMessages((prev) => [...prev, {
         id: `error-${Date.now()}`, role: "assistant",
@@ -185,6 +195,16 @@ export default function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Chat Locked Banner */}
+      {chatLocked && (
+        <div style={{ background: "rgba(10,10,46,0.9)", borderTop: "1px solid rgba(239,68,68,0.3)", padding: "24px", textAlign: "center" }}>
+          <p style={{ fontSize: 28, marginBottom: 8 }}>🔒</p>
+          <p style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 600, color: "#f87171", marginBottom: 4 }}>Chat is Locked</p>
+          <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Your parents have locked the chat. Ask them to unlock it!</p>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 8 }}>Gojo-sensei is taking a break 😎💤</p>
+        </div>
+      )}
+
       {/* Daily Limit Banner */}
       {limitReached && (
         <div style={{ background: "rgba(10,10,46,0.9)", borderTop: "1px solid rgba(0,102,255,0.2)", padding: "24px", textAlign: "center" }}>
@@ -196,7 +216,7 @@ export default function ChatWindow() {
       )}
 
       {/* Input */}
-      {!limitReached && (
+      {!limitReached && !chatLocked && (
         <div style={{ background: "rgba(10,10,46,0.9)", borderRadius: "0 0 16px 16px", padding: 12, display: "flex", gap: 8 }}>
           <input
             ref={inputRef}
